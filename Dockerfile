@@ -2,7 +2,7 @@
 FROM maven:latest AS build
 COPY src /home/app/src
 COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean test package
+RUN mvn -f /home/app/pom.xml clean package
 
 #stage 2
 FROM  openjdk:11
