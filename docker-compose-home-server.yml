@@ -4,4 +4,4 @@ services:
   cooking-api:
     image: orewaprogdev13/cooking-api
     ports:
-      - 9090:80
+      - 9090:9090
