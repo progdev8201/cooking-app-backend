@@ -20,10 +20,6 @@ pipeline {
 
         stage('deploy app CD') {
             steps {
-                git branch: 'main',
-                credentialsId: 'git-credentials',
-                url: 'https://github.com/progdev8201/cooking-app-backend.git'
-
                 sh("""
                 docker-compose -f docker-compose-home-server.yml down;
                 docker system prune -a -f;
