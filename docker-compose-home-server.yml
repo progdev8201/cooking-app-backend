@@ -3,5 +3,7 @@ version: '3'
 services:
   cooking-api:
     image: orewaprogdev13/cooking-api
+    environment:
+      - environement=dev
     ports:
       - 9090:9090

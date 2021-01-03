@@ -8,5 +8,5 @@ RUN mvn -f /home/app/pom.xml clean package
 FROM  openjdk:11
 ARG JAR_FILE=/home/app/target/*.jar
 COPY --from=build ${JAR_FILE} app.jar
-CMD ["java","-jar","/app.jar"]
+CMD ["java","-jar","-Dspring.profiles.active=${environement}","/app.jar"]
 EXPOSE 9090
