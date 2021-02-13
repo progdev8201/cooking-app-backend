@@ -69,7 +69,7 @@ public class ShoppingListService {
             userSaved.getFridge().getAvailableArticles().addAll(userSaved.getShoppingList());
             userSaved.getShoppingList().clear();
             userRepository.save(userSaved);
-            
+
             LOGGER.info("SHOPPING SUCCESS!");
         });
     }
