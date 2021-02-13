@@ -21,10 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @SpringBootTest
 public class ArticleServiceTest {
 
-
     @MockBean
     private UserRepository userRepository;
-
 
     @Test
     public void createArticleTest() {
@@ -39,9 +37,8 @@ public class ArticleServiceTest {
 
         Mockito.when(userRepository.save(Mockito.any())).then(inv -> {
 
-            User user2 = (User) inv.getArgument(0);
+            User user2 = inv.getArgument(0);
             Article article = user2.getArticles().get(articleIndex);
-
 
             assertArticle(articleDTO, article);
 
@@ -87,7 +84,6 @@ public class ArticleServiceTest {
 
         //ASSERT
         assertArticle(articleDTO, article);
-
     }
 
     @Test

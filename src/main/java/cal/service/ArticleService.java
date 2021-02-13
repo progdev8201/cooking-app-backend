@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 @Validated
 public class ArticleService {
 
-
     private UserRepository userRepository;
 
     private final Logger LOGGER = Logger.getLogger(ArticleService.class.getName());
