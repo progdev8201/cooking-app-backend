@@ -2,6 +2,7 @@ package cal.service;
 
 import cal.model.dto.ArticleDTO;
 import cal.model.entity.Article;
+import cal.model.entity.RoutineArticle;
 import cal.model.entity.User;
 import cal.model.enums.ArticleCategorie;
 import cal.model.enums.ArticleType;
@@ -143,13 +144,19 @@ public class ArticleServiceTest {
         // Arrange
         User user = EntityGenerator.setUpUserWithLogic();
 
+        final int occurenceAmount = 6;
+
+        Article articleToFind = user.getArticles().get(0);
+
+        user.getFridge().getAvailableArticles().add(new RoutineArticle(UUID.randomUUID(),articleToFind,5));
+
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
         // Act
-        List<String> allOccurences = articleService.findAllOccurences(user.getUniqueId(),user.getArticles().get(0).getId());
+        List<String> allOccurences = articleService.findAllOccurences(user.getUniqueId(),articleToFind.getId());
 
         // Assert
-        assertEquals(4,allOccurences.size());
+        assertEquals(occurenceAmount,allOccurences.size());
     }
 
     private void assertArticle(ArticleDTO articleDTO, Article article) {
