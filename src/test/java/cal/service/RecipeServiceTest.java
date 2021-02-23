@@ -10,6 +10,8 @@ import cal.model.enums.ArticleType;
 import cal.model.enums.RecipeType;
 import cal.model.enums.UnitMeasurement;
 import cal.repository.UserRepository;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +31,21 @@ public class RecipeServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    private RecipeService recipeService;
+
+    @BeforeEach
+    public void before(){
+        recipeService = new RecipeService(userRepository);
+    }
+
     @Test
     public void createTest(){
         //ARRANGE
         User user = userRepository.save(setUpUser());
-        RecipeService recipeService = new RecipeService(userRepository);
 
-        int initialSize = user.getRecipes().size();
+        final int initialSize = user.getRecipes().size();
 
-        RecipeDTO recipeToAdd = new RecipeDTO(user.getRecipes().get(0));
+        final RecipeDTO recipeToAdd = new RecipeDTO(user.getRecipes().get(0));
         recipeToAdd.setId(UUID.randomUUID());
 
         //ACT
@@ -51,10 +59,9 @@ public class RecipeServiceTest {
     @Test
     public void findTest(){
         //ARRANGE
-        User user = userRepository.save(setUpUser());
-        RecipeService recipeService = new RecipeService(userRepository);
+        final User user = userRepository.save(setUpUser());
 
-        Recipe recipeToFind = user.getRecipes().get(0);
+        final Recipe recipeToFind = user.getRecipes().get(0);
 
         //ACT
         RecipeDTO foundRecipe = recipeService.find(user.getUniqueId(),recipeToFind.getId());
@@ -68,11 +75,10 @@ public class RecipeServiceTest {
     public void updateByRemoveArticleTest(){
         //ARRANGE
         User user = userRepository.save(setUpUser());
-        RecipeService recipeService = new RecipeService(userRepository);
 
-        Recipe recipeToUpdate = user.getRecipes().get(0);
+        final Recipe recipeToUpdate = user.getRecipes().get(0);
 
-        int initialSize = recipeToUpdate.getRecipeArticles().size();
+        final int initialSize = recipeToUpdate.getRecipeArticles().size();
 
         recipeToUpdate.getRecipeArticles().remove(0);
 
@@ -89,9 +95,8 @@ public class RecipeServiceTest {
     public void deleteTest(){
         //ARRANGE
         User user = userRepository.save(setUpUser());
-        RecipeService recipeService = new RecipeService(userRepository);
 
-        int initialSize = user.getRecipes().size();
+        final int initialSize = user.getRecipes().size();
 
         //ACT
         recipeService.delete(user.getUniqueId(),user.getRecipes().get(0).getId());
@@ -103,7 +108,7 @@ public class RecipeServiceTest {
 
     private User setUpUser() {
         // set up user
-        User user = new User(UUID.randomUUID(), "test2@mail.com", "test", "test", "test", "test");
+        final User user = new User(UUID.randomUUID(), "test2@mail.com", "test", "test", "test", "test");
 
         //set up une recipe list
         for (int i = 0; i < 10; i++) {

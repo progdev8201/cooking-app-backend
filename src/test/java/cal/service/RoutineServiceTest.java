@@ -29,9 +29,6 @@ public class RoutineServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-
-
-
     @Test
     public void createRoutineTest() {
         //ARRANGE
@@ -50,7 +47,7 @@ public class RoutineServiceTest {
         //ASSERT
         user = userRepository.findById(user.getUniqueId()).get();
 
-        assertEquals(true, userRoutinesQty + 1 == user.getRoutines().size());
+        assertEquals(userRoutinesQty + 1, user.getRoutines().size());
     }
 
     @Order(3)

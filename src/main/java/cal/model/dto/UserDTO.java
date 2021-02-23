@@ -10,14 +10,11 @@ import java.util.stream.Collectors;
 @Data
 public class UserDTO implements Serializable {
     private UUID uniqueId;
-
     private String email;
     private String password;
     private String firstName;
     private String lastName;
-
     private String role;
-
     private List<RecipeDTO> recipes;
     private List<ArticleDTO> articles;
     private List<RoutineDTO> routines;

@@ -66,6 +66,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
+        configuration.setAllowedOrigins(Arrays.asList(frontEndUrl,"http://10.0.0.116:3000"));
         configuration.addAllowedOrigin(frontEndUrl);
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));

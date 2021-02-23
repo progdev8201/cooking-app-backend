@@ -4,12 +4,14 @@ import cal.model.dto.ArticleDTO;
 import cal.model.dto.TransactionDTO;
 import cal.model.dto.UserDTO;
 import cal.model.entity.Article;
+import cal.model.entity.RoutineArticle;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.swing.text.html.Option;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -85,5 +87,54 @@ public class ArticleService {
             });
         });
     }
+
+    public List<String> findAllOccurences(UUID userId,UUID articleId){
+        //find user
+        List<String> placesFound = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+
+        user.ifPresent(u -> {
+            boolean articlePresent = u.getArticles().stream().filter(article -> article.getId().equals(articleId)).findFirst().isPresent();
+
+            if (articlePresent){
+                // check all user routines
+                u.getRoutines()
+                        .stream()
+                        .forEach(routine -> {
+                           if(routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleId)).findFirst().isPresent())
+                               placesFound.add("routine: " + routine.getName());
+                        });
+
+                // check all user recipes
+                u.getRecipes()
+                        .stream()
+                        .forEach(recipe -> {
+                            if (recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleId)).findFirst().isPresent())
+                                placesFound.add("recipe: " + recipe.getName());
+                        });
+
+                // check all available article in fridge
+                Optional<RoutineArticle> availableRoutineArticle = u.getFridge().getAvailableArticles().stream().filter(article -> article.getArticle().getId().equals(articleId)).findFirst();
+                if (availableRoutineArticle.isPresent())
+                    placesFound.add("fridge available article: " + availableRoutineArticle.get().getArticle().getName());
+
+                // check all missing article in fridge
+                Optional<RoutineArticle> missingRoutineArticle = u.getFridge().getMissingArticles().stream().filter(article -> article.getArticle().getId().equals(articleId)).findFirst();
+                if (missingRoutineArticle.isPresent())
+                    placesFound.add("fridge missing article: " + missingRoutineArticle.get().getArticle().getName());
+
+                // check all available recipes in fridge
+                u.getFridge().getAvailableRecipes()
+                        .stream()
+                        .forEach(recipe -> {
+                            if (recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleId)).findFirst().isPresent())
+                                placesFound.add("fridge available recipe: " + recipe.getName());
+                        });
+            }
+        });
+
+        return placesFound;
+    }
+
 
 }

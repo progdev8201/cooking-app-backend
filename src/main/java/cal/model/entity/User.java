@@ -16,14 +16,11 @@ public class User implements Serializable {
 
     @Id
     private UUID uniqueId;
-
     private String email;
     private String password;
     private String firstName;
     private String lastName;
-
     private String role;
-
     private List<Recipe> recipes;
     private List<Article> articles;
     private List<Routine> routines;

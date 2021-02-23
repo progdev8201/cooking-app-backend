@@ -6,10 +6,19 @@ import cal.model.entity.User;
 import cal.model.enums.ArticleCategorie;
 import cal.model.enums.ArticleType;
 import cal.repository.UserRepository;
+import cal.utility.EntityGenerator;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,17 +27,24 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ArticleServiceTest {
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
+
+    @InjectMocks
+    private ArticleService articleService;
+
+    @BeforeEach
+    public void before(){
+        articleService = new ArticleService(userRepository);
+    }
 
     @Test
     public void createArticleTest() {
         //ARRANGE
         User user = setUpUser();
-        ArticleService articleService = new ArticleService(userRepository);
         int articleIndex = 0;
         ArticleDTO articleDTO = new ArticleDTO(user.getArticles().get(articleIndex));
 
@@ -53,7 +69,6 @@ public class ArticleServiceTest {
     public void findAllTest() {
         //ARRANGE
         User user = setUpUser();
-        ArticleService articleService = new ArticleService(userRepository);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
         //ACT
@@ -75,8 +90,6 @@ public class ArticleServiceTest {
         int articleIndex = 0;
         Article article = user.getArticles().get(articleIndex);
 
-        ArticleService articleService = new ArticleService(userRepository);
-
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
         //ACT
@@ -90,7 +103,6 @@ public class ArticleServiceTest {
     public void updateTest() {
         //ARRANGE
         User user = setUpUser();
-        ArticleService articleService = new ArticleService(userRepository);
 
         int articleIndex = 0;
 
@@ -117,8 +129,6 @@ public class ArticleServiceTest {
 
         Article article = user.getArticles().get(articleIndex);
 
-        ArticleService articleService = new ArticleService(userRepository);
-
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
         //ACT
@@ -126,6 +136,20 @@ public class ArticleServiceTest {
 
         //ASSERT
         assertNull(articleService.find(article.getId(), user.getUniqueId()));
+    }
+
+    @Test
+    public void findAllOccurencesTest(){
+        // Arrange
+        User user = EntityGenerator.setUpUserWithLogic();
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
+
+        // Act
+        List<String> allOccurences = articleService.findAllOccurences(user.getUniqueId(),user.getArticles().get(0).getId());
+
+        // Assert
+        assertEquals(4,allOccurences.size());
     }
 
     private void assertArticle(ArticleDTO articleDTO, Article article) {
