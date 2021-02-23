@@ -32,6 +32,11 @@ public class ArticleController {
         return articleService.findAll(userId);
     }
 
+    @GetMapping("/findAllOccurences/{userId}/{articleId}")
+    public List<String> findAllOccurences(@PathVariable final UUID userId,@PathVariable final UUID articleId){
+        return articleService.findAllOccurences(userId,articleId);
+    }
+
     @PutMapping("/{userId}")
     public ArticleDTO update(@Valid @RequestBody ArticleDTO articleDTO, @PathVariable final UUID userId){
         return articleService.update(articleDTO,userId);
