@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -76,7 +77,7 @@ public class ShoppingListServiceTest {
         ShoppingListService shoppingListService = new ShoppingListService(userRepository);
 
         //ACT
-        Set<RoutineArticle> userShoppingListFromService = shoppingListService.find(user.getUniqueId());
+        List<RoutineArticle> userShoppingListFromService = shoppingListService.find(user.getUniqueId());
 
         //ASSERT
         assertTrue(user.getShoppingList().equals(userShoppingListFromService));

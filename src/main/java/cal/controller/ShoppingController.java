@@ -6,6 +6,7 @@ import cal.service.ShoppingListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,12 +17,12 @@ public class ShoppingController {
     private ShoppingListService shoppingListService;
 
     @PutMapping("{userId}")
-    public Set<RoutineArticle> updateShoppingList(@PathVariable final UUID userId, @RequestBody Set<RoutineArticleDTO> shoppingListArticles) {
+    public List<RoutineArticle> updateShoppingList(@PathVariable final UUID userId, @RequestBody Set<RoutineArticleDTO> shoppingListArticles) {
         return shoppingListService.updateShoppingList(userId, shoppingListArticles);
     }
 
     @GetMapping("{userId}")
-    public Set<RoutineArticle> find(@PathVariable final UUID userId) {
+    public List<RoutineArticle> find(@PathVariable final UUID userId) {
         return shoppingListService.find(userId);
     }
 

@@ -24,7 +24,7 @@ public class User implements Serializable {
     private List<Recipe> recipes;
     private List<Article> articles;
     private List<Routine> routines;
-    private Set<RoutineArticle> shoppingList;
+    private List<RoutineArticle> shoppingList;
     private Fridge fridge;
 
     public User(UUID uniqueId, String email, String password, String firstName, String lastName, String role) {
@@ -37,7 +37,7 @@ public class User implements Serializable {
         recipes = new ArrayList<>();
         articles = new ArrayList<>();
         routines = new ArrayList<>();
-        shoppingList = new TreeSet<>();
+        shoppingList = new ArrayList<>();
         fridge = new Fridge();
     }
 
@@ -57,7 +57,7 @@ public class User implements Serializable {
 
         routines = userDTO.getRoutines().stream().map(Routine::new).collect(Collectors.toList());
 
-        shoppingList = userDTO.getShoppingList().stream().map(RoutineArticle::new).collect(Collectors.toSet());
+        shoppingList = userDTO.getShoppingList().stream().map(RoutineArticle::new).collect(Collectors.toList());
     }
 
     public User() {

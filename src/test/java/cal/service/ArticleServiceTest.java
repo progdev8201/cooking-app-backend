@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceTest {
@@ -107,7 +106,7 @@ public class ArticleServiceTest {
 
         int articleIndex = 0;
 
-        Article article = user.getArticles().get(articleIndex);
+        ArticleDTO article = new ArticleDTO(user.getArticles().get(articleIndex));
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
@@ -115,18 +114,19 @@ public class ArticleServiceTest {
 
         //ACT
         article.setArticleCategorie(ArticleCategorie.CEREAL);
-        ArticleDTO articleDTO = articleService.update(new ArticleDTO(article), user.getUniqueId());
+        ArticleDTO articleDTO = articleService.update(article, user.getUniqueId());
 
         //ASSERT
-        assertArticle(articleDTO, article);
+        assertArticle(articleDTO, new Article(article));
     }
 
 
     @Test
     public void deleteArticleTest() {
         //ARRANGE
-        int articleIndex = 0;
         User user = setUpUser();
+
+        final int articleIndex = 0;
 
         Article article = user.getArticles().get(articleIndex);
 
@@ -157,6 +157,50 @@ public class ArticleServiceTest {
 
         // Assert
         assertEquals(occurenceAmount,allOccurences.size());
+    }
+
+    @Test
+    public void deleteAllOccurencesTest(){
+        // Arrange
+
+        User user = EntityGenerator.setUpUserWithLogic();
+
+        Article articleToDelete = user.getArticles().get(0);
+
+        user.getFridge().getAvailableArticles().add(new RoutineArticle(UUID.randomUUID(),articleToDelete,5));
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
+
+        final int expectedOccurences = 0;
+        final int occurenceAmount = articleService.findAllOccurences(user.getUniqueId(),articleToDelete.getId()).size();
+        final int initialOccurenceAmount = 6;
+
+        // Act
+
+        articleService.delete(articleToDelete.getId(),user.getUniqueId());
+
+        final int realOccurence = articleService.findAllOccurences(user.getUniqueId(),articleToDelete.getId()).size();
+
+        // Assert
+
+        assertEquals(expectedOccurences,realOccurence);
+        assertEquals(initialOccurenceAmount,occurenceAmount);
+        assertNotEquals(occurenceAmount,realOccurence);
+    }
+
+    @Test
+    public void updateAllOccurencesTest(){
+        // Arrange
+
+        User user = EntityGenerator.setUpUserWithLogic();
+
+        ArticleDTO articleToUpdateDto = new ArticleDTO(user.getArticles().get(0));
+
+        user.getFridge().getAvailableArticles().add(new RoutineArticle(UUID.randomUUID(),new Article(articleToUpdateDto),5));
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
+
+        articleService.update(articleToUpdateDto,user.getUniqueId());
     }
 
     private void assertArticle(ArticleDTO articleDTO, Article article) {

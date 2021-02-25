@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class ShoppingListService {
         this.articleService = new ArticleService(userRepository);
     }
 
-    public Set<RoutineArticle> updateShoppingList(@NotNull UUID userId, @NotNull Set<RoutineArticleDTO> shoppingListArticles) {
+    public List<RoutineArticle> updateShoppingList(@NotNull UUID userId, @NotNull Set<RoutineArticleDTO> shoppingListArticles) {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
@@ -50,7 +51,7 @@ public class ShoppingListService {
         return user.get().getShoppingList();
     }
 
-    public Set<RoutineArticle> find(@NotNull UUID userId) {
+    public List<RoutineArticle> find(@NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 
         return user.isPresent() ? user.get().getShoppingList() : null;

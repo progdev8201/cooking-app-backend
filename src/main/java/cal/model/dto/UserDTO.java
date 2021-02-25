@@ -18,7 +18,7 @@ public class UserDTO implements Serializable {
     private List<RecipeDTO> recipes;
     private List<ArticleDTO> articles;
     private List<RoutineDTO> routines;
-    private Set<RoutineArticleDTO> shoppingList;
+    private List<RoutineArticleDTO> shoppingList;
     private FridgeDTO frigo;
 
     public UserDTO(User user) {
@@ -37,6 +37,6 @@ public class UserDTO implements Serializable {
 
         routines = user.getRoutines().stream().map(RoutineDTO::new).collect(Collectors.toList());
 
-        shoppingList = user.getShoppingList().stream().map(RoutineArticleDTO::new).collect(Collectors.toSet());
+        shoppingList = user.getShoppingList().stream().map(RoutineArticleDTO::new).collect(Collectors.toList());
     }
 }

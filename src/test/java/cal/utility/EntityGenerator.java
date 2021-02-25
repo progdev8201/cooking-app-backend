@@ -6,10 +6,7 @@ import cal.model.enums.ArticleType;
 import cal.model.enums.RecipeType;
 import cal.model.enums.UnitMeasurement;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityGenerator {
@@ -46,13 +43,13 @@ public class EntityGenerator {
                 .map(article -> new RoutineArticle(UUID.randomUUID(),article,5))
                 .collect(Collectors.toList());
 
-        List<RoutineArticle> routineArticlesPart2 = user.getArticles().subList(user.getArticles().size()/2,user.getArticles().size() - 1)
+        List<RoutineArticle> routineArticlesPart2 = user.getArticles().subList(user.getArticles().size()/2,user.getArticles().size())
                 .stream()
                 .map(article -> new RoutineArticle(UUID.randomUUID(),article,5))
                 .collect(Collectors.toList());
 
         Routine routine = new Routine(UUID.randomUUID(),"test",routineArticlesPart1);
-        Routine routine2 = new Routine(UUID.randomUUID(),"test",routineArticlesPart2);
+        Routine routine2 = new Routine(UUID.randomUUID(),"test2",routineArticlesPart2);
 
         // create 2 recipes
         List<RecipeArticle> recipeArticlesPart1 = user.getArticles().subList(0,user.getArticles().size()/2)
@@ -70,17 +67,19 @@ public class EntityGenerator {
 
         // create a fridge
         Fridge fridge = new Fridge();
-        fridge.setMissingArticles(routineArticlesPart1);
-        fridge.setAvailableArticles(routineArticlesPart2);
-        fridge.setAvailableRecipes(Arrays.asList(recipe));
+        fridge.setMissingArticles(new ArrayList<>(routineArticlesPart1));
+        fridge.setAvailableArticles(new ArrayList<>(routineArticlesPart2));
+        fridge.setAvailableRecipes(Arrays.asList(new Recipe(recipe.getId(),recipe.getName(),new ArrayList<>(recipe.getRecipeArticles()),recipe.getImage(),recipe.getCountry(),recipe.getDescription(),recipe.getRecipeType(),recipe.getTime())));
 
         user.setRecipes(Arrays.asList(recipe,recipe2));
         user.setRoutines(Arrays.asList(routine,routine2));
         user.setFridge(fridge);
+        user.setShoppingList(new ArrayList<>(routineArticlesPart1));
 
         return user;
     }
 
+    // todo might have to delete all of those methods if not used
     public static Article generateArticle(){
         return new Article(UUID.randomUUID(),"test", "test", 5.99f, "test", ArticleType.SOLID,ArticleCategorie.CEREAL);
     }
