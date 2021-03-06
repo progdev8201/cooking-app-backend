@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import static cal.service.validator.ArticleServiceStaticValidator.uniqueArticleNameValidator;
+
 @Service
 @Validated
 public class ArticleService {
@@ -30,6 +32,8 @@ public class ArticleService {
     }
 
     public ArticleDTO create(@Valid ArticleDTO articleDTO, UUID userId) {
+        uniqueArticleNameValidator(this,articleDTO,userId);
+
         Optional<User> user = userRepository.findById(userId);
         Article article = new Article(articleDTO);
 
@@ -53,79 +57,113 @@ public class ArticleService {
     }
 
     public ArticleDTO update(@Valid ArticleDTO articleDTO, UUID userId) {
+        uniqueArticleNameValidator(this,articleDTO,userId);
+
         // find user then update his article then save the client then return the article
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
 
-            //  update in user article list
-            Optional<Article> articleToUpdate = u.getArticles().stream().filter(article -> article.getId().equals(articleDTO.getId())).findFirst();
-
-            articleToUpdate.ifPresent(article -> {
-                u.getArticles().set(u.getArticles().indexOf(article), new Article(articleDTO));
-                LOGGER.info("ARTICLE UPDATED");
-            });
-
-            // update in user routines
-            u.getRoutines().forEach(routine -> {
-                Optional<RoutineArticle> routineArticleToUpdate = routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
-
-                routineArticleToUpdate.ifPresent(routineArticle -> {
-                    routine.getRoutineArticles().get(routine.getRoutineArticles().indexOf(routineArticle)).setArticle(new Article(articleDTO));
-                    LOGGER.info("ARTICLE UPDATED IN ROUTINE");
-                });
-            });
-
-            // update in shopping list
-            Optional<RoutineArticle> routineArticleToUpdate = u.getShoppingList().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
-
-            routineArticleToUpdate.ifPresent(routineArticle -> {
-                u.getShoppingList().get(u.getShoppingList().indexOf(routineArticle)).setArticle(new Article(articleDTO));
-                LOGGER.info("ARTICLE UPDATED IN SHOPPING LIST");
-            });
-
-            // update in user recipes
-            u.getRecipes().forEach(recipe -> {
-                Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
-
-                recipeArticleToUpdate.ifPresent(recipeArticle -> {
-                    recipe.getRecipeArticles().get(recipe.getRecipeArticles().indexOf(recipeArticle)).setArticle(new Article(articleDTO));
-                    LOGGER.info("ARTICLE UPDATED IN RECIPE");
-                });
-            });
-
-            // update in user fridge available recipes
-            u.getFridge().getAvailableRecipes().forEach(recipe -> {
-                Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
-
-                recipeArticleToUpdate.ifPresent(recipeArticle -> {
-                    recipe.getRecipeArticles().get(recipe.getRecipeArticles().indexOf(recipeArticle)).setArticle(new Article(articleDTO));
-                    LOGGER.info("ARTICLE UPDATED IN FRIDGE AVAILABLE RECIPE");
-                });
-            });
-
-            // update in user fridge available articles
-            Optional<RoutineArticle> availableRoutineArticleToUpdate = u.getFridge().getAvailableArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
-
-            availableRoutineArticleToUpdate.ifPresent(routineArticle -> {
-                final int routineArticleIndex = u.getFridge().getAvailableArticles().indexOf(routineArticle);
-                u.getFridge().getAvailableArticles().get(routineArticleIndex).setArticle(new Article(articleDTO));
-                LOGGER.info("ARTICLE UPDATED IN FRIDGE AVAILABLE ARTICLES");
-            });
-
-            // update in user fridge missing articles
-            Optional<RoutineArticle> missingRoutineArticleToUpdate = u.getFridge().getMissingArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
-
-            missingRoutineArticleToUpdate.ifPresent(routineArticle -> {
-                final int routineArticleIndex = u.getFridge().getMissingArticles().indexOf(routineArticle);
-                u.getFridge().getMissingArticles().get(routineArticleIndex).setArticle(new Article(articleDTO));
-                LOGGER.info("ARTICLE UPDATED IN FRIDGE MISSING ARTICLES");
-            });
+            updateAllOccurences(articleDTO, u);
 
             userRepository.save(u);
         });
 
         return find(userId, articleDTO.getId());
+    }
+
+    private void updateAllOccurences(ArticleDTO articleDTO, User u) {
+        // update in user article list
+        updateArticleInUserArticlesList(articleDTO, u);
+
+        // update in user routines
+        updateArticleInUserRoutinesList(articleDTO, u);
+
+        // update in shopping list
+        updateArticleInShoppingList(articleDTO, u);
+
+        // update in user recipes
+        updateArticleInUserRecipes(articleDTO, u);
+
+        // update in user fridge available recipes
+        updateArticleInFridgeAvailablerecipes(articleDTO, u);
+
+        // update in user fridge available articles
+        updateArticleInFridgeAvailableArticles(articleDTO, u);
+
+        // update in user fridge missing articles
+        updateArticleInFridgeMissingArticles(articleDTO, u);
+    }
+
+    private void updateArticleInFridgeMissingArticles(@Valid ArticleDTO articleDTO, User u) {
+        Optional<RoutineArticle> missingRoutineArticleToUpdate = u.getFridge().getMissingArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
+
+        missingRoutineArticleToUpdate.ifPresent(routineArticle -> {
+            final int routineArticleIndex = u.getFridge().getMissingArticles().indexOf(routineArticle);
+            u.getFridge().getMissingArticles().get(routineArticleIndex).setArticle(new Article(articleDTO));
+            LOGGER.info("ARTICLE UPDATED IN FRIDGE MISSING ARTICLES");
+        });
+    }
+
+    private void updateArticleInFridgeAvailableArticles(@Valid ArticleDTO articleDTO, User u) {
+        Optional<RoutineArticle> availableRoutineArticleToUpdate = u.getFridge().getAvailableArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
+
+        availableRoutineArticleToUpdate.ifPresent(routineArticle -> {
+            final int routineArticleIndex = u.getFridge().getAvailableArticles().indexOf(routineArticle);
+            u.getFridge().getAvailableArticles().get(routineArticleIndex).setArticle(new Article(articleDTO));
+            LOGGER.info("ARTICLE UPDATED IN FRIDGE AVAILABLE ARTICLES");
+        });
+    }
+
+    private void updateArticleInFridgeAvailablerecipes(@Valid ArticleDTO articleDTO, User u) {
+        u.getFridge().getAvailableRecipes().forEach(recipe -> {
+            Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
+
+            recipeArticleToUpdate.ifPresent(recipeArticle -> {
+                recipe.getRecipeArticles().get(recipe.getRecipeArticles().indexOf(recipeArticle)).setArticle(new Article(articleDTO));
+                LOGGER.info("ARTICLE UPDATED IN FRIDGE AVAILABLE RECIPE");
+            });
+        });
+    }
+
+    private void updateArticleInUserRecipes(@Valid ArticleDTO articleDTO, User u) {
+        u.getRecipes().forEach(recipe -> {
+            Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
+
+            recipeArticleToUpdate.ifPresent(recipeArticle -> {
+                recipe.getRecipeArticles().get(recipe.getRecipeArticles().indexOf(recipeArticle)).setArticle(new Article(articleDTO));
+                LOGGER.info("ARTICLE UPDATED IN RECIPE");
+            });
+        });
+    }
+
+    private void updateArticleInShoppingList(@Valid ArticleDTO articleDTO, User u) {
+        Optional<RoutineArticle> routineArticleToUpdate = u.getShoppingList().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
+
+        routineArticleToUpdate.ifPresent(routineArticle -> {
+            u.getShoppingList().get(u.getShoppingList().indexOf(routineArticle)).setArticle(new Article(articleDTO));
+            LOGGER.info("ARTICLE UPDATED IN SHOPPING LIST");
+        });
+    }
+
+    private void updateArticleInUserRoutinesList(ArticleDTO articleDTO, User u) {
+        u.getRoutines().forEach(routine -> {
+            Optional<RoutineArticle> routineArticleToUpdate = routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
+
+            routineArticleToUpdate.ifPresent(routineArticle -> {
+                routine.getRoutineArticles().get(routine.getRoutineArticles().indexOf(routineArticle)).setArticle(new Article(articleDTO));
+                LOGGER.info("ARTICLE UPDATED IN ROUTINE");
+            });
+        });
+    }
+
+    private void updateArticleInUserArticlesList(ArticleDTO articleDTO, User u) {
+        Optional<Article> articleToUpdate = u.getArticles().stream().filter(article -> article.getId().equals(articleDTO.getId())).findFirst();
+
+        articleToUpdate.ifPresent(article -> {
+            u.getArticles().set(u.getArticles().indexOf(article), new Article(articleDTO));
+            LOGGER.info("ARTICLE UPDATED");
+        });
     }
 
     public void delete(UUID articleId, UUID userId) {
