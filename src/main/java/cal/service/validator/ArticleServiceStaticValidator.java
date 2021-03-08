@@ -2,23 +2,15 @@ package cal.service.validator;
 
 import cal.model.dto.ArticleDTO;
 import cal.model.entity.Article;
-import cal.service.ArticleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ArticleServiceStaticValidator {
 
-
-    public static void uniqueArticleNameValidator(ArticleService articleService, ArticleDTO articleDTO, UUID userId){
-        List<Article> articles = articleService.findAll(userId)
-                .stream()
-                .map(Article::new)
-                .collect(Collectors.toList());
-
+    public static void uniqueArticleNameValidator(List<Article> articles, ArticleDTO articleDTO, UUID userId){
         if (articleDTO.getId() == null)
             handleCreationValidation(articleDTO, articles);
         else
@@ -36,13 +28,17 @@ public class ArticleServiceStaticValidator {
         boolean isNameExistant = articles.stream().filter(article -> article.getName().equals(articleDTO.getName())).findFirst().isPresent();
 
         if (isNameExistant)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name of Article Cannot Be repeated", null);
+            throwArticleRepetitionException();
     }
 
     private static void handleCreationValidation(ArticleDTO articleDTO, List<Article> articles) {
         boolean isNamePresent = articles.stream().filter(article -> article.getName().equals(articleDTO.getName())).findFirst().isPresent();
 
         if (isNamePresent)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name of Article Cannot Be repeated", null);
+            throwArticleRepetitionException();
+    }
+
+    private static void throwArticleRepetitionException(){
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name of Article Cannot Be repeated", null);
     }
 }

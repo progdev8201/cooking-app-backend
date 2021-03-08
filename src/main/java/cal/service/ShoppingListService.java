@@ -78,8 +78,10 @@ public class ShoppingListService {
     private void addTransactionAndUpdate(@NotNull UUID userId, @NotNull Article article, @NotNull int qty) {
         ArticleDTO articleToEdit = articleService.find(userId, article.getId());
 
-        for (int i = 0; i < qty; i++)
+        for (int i = 0; i < qty; i++){
             articleToEdit.getTransactions().add(new TransactionDTO(UUID.randomUUID(), LocalDate.now(), article.getPrice()));
+            LOGGER.info("NEW TRANSACTION ADDED FOR ARTICLE: " + articleToEdit.getName());
+        }
 
         articleService.update(articleToEdit, userId);
     }
