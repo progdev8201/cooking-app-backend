@@ -51,6 +51,34 @@ public class ShoppingListService {
         return user.get().getShoppingList();
     }
 
+    public List<RoutineArticle> addArticlesToShoppingList(@NotNull UUID userId,@NotNull List<RoutineArticleDTO> articlesToAdd){
+        Optional<User> user = userRepository.findById(userId);
+
+        user.ifPresent(u->{
+
+            articlesToAdd.forEach(routineArticle ->{
+
+                Optional<RoutineArticle> alreadyExistingRoutineArticle = u.getShoppingList()
+                        .stream()
+                        .filter(routineArticle1 -> routineArticle1.getArticle().getId().equals(routineArticle.getArticle().getId()))
+                        .findFirst();
+
+                if (alreadyExistingRoutineArticle.isPresent()){
+                    final int routineArticleIndex = u.getShoppingList().indexOf(alreadyExistingRoutineArticle.get());
+
+                    final int quantityToAdd = alreadyExistingRoutineArticle.get().getQuantity() + routineArticle.getQuantity();
+
+                    u.getShoppingList().get(routineArticleIndex).setQuantity(quantityToAdd);
+                }else{
+                    u.getShoppingList().add(new RoutineArticle(routineArticle));
+                }
+            });
+
+        });
+
+        return user.get().getShoppingList();
+    }
+
     public List<RoutineArticle> find(@NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 

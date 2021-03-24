@@ -21,6 +21,11 @@ public class ShoppingController {
         return shoppingListService.updateShoppingList(userId, shoppingListArticles);
     }
 
+    @PutMapping("add/{userId}")
+    public List<RoutineArticle> addArticlesToShoppingList(@PathVariable final UUID userId, @RequestBody List<RoutineArticleDTO> articlesToAdd){
+        return shoppingListService.addArticlesToShoppingList(userId,articlesToAdd);
+    }
+
     @GetMapping("{userId}")
     public List<RoutineArticle> find(@PathVariable final UUID userId) {
         return shoppingListService.find(userId);

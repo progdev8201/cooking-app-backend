@@ -13,7 +13,6 @@ public class JwtAuthentication implements Authentication {
 
     private DecodedJWT token;
 
-
     public JwtAuthentication(DecodedJWT token) {
         this.token = token;
     }

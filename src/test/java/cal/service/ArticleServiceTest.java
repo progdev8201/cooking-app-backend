@@ -29,7 +29,6 @@ public class ArticleServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @InjectMocks
     private ArticleService articleService;
 
     @BeforeEach

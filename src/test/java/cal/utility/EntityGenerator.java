@@ -15,22 +15,7 @@ public class EntityGenerator {
     public static final int USER_RECIPE_SIZE = 10;
     public static final int USER_M_SIZE = 10;
 
-    public static User setUpCompleteUser(){
-        User user = new User(UUID.randomUUID(),"test","test","test","test","test");
-
-        // create articles
-        user.setArticles(generateArticles(USER_ARTICLE_SIZE));
-        // create routine
-        user.setRoutines(generateRoutines(USER_ROUTINE_SIZE,USER_ROUTINE_SIZE));
-        // create recipe
-        user.setRecipes(generateRecipes(USER_RECIPE_SIZE,USER_RECIPE_SIZE));
-        // create fridge
-        user.setFridge(generateFridge(10,10,10));
-
-        return user;
-    }
-
-    //setting up a user with all entity based on real logique
+    //setting up a user with all entity based on real logic
     public static User setUpUserWithLogic(){
         User user = new User(UUID.randomUUID(),"test","test","test","test","test");
 
@@ -71,10 +56,13 @@ public class EntityGenerator {
         fridge.setAvailableArticles(new ArrayList<>(routineArticlesPart2));
         fridge.setAvailableRecipes(Arrays.asList(new Recipe(recipe.getId(),recipe.getName(),new ArrayList<>(recipe.getRecipeArticles()),recipe.getImage(),recipe.getCountry(),recipe.getDescription(),recipe.getRecipeType(),recipe.getTime())));
 
+        // create a shopping list
+        List<RoutineArticle> shoppingList = new ArrayList<>(routineArticlesPart1);
+
         user.setRecipes(Arrays.asList(recipe,recipe2));
         user.setRoutines(Arrays.asList(routine,routine2));
         user.setFridge(fridge);
-        user.setShoppingList(new ArrayList<>(routineArticlesPart1));
+        user.setShoppingList(shoppingList);
 
         return user;
     }
