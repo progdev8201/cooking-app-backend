@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static cal.utility.EntityGenerator.setUpUserWithLogic;
@@ -36,44 +35,7 @@ public class ShoppingListServiceTest {
     private ShoppingListService shoppingListService;
 
     @Test
-    public void updateByDeleteShoppingListTest() {
-        // Arrange
-
-        //add routine articles to shopping list
-        User user = userRepository.save(setUpUser());
-
-        int initialSize = user.getShoppingList().size();
-
-        RoutineArticleDTO routineArticleDTOToDelete = null;
-
-        //map shopping list to dto
-        Set<RoutineArticleDTO> shoppingList = new TreeSet<>();
-
-        user.getShoppingList().stream().forEach(routineArticle -> {
-            shoppingList.add(new RoutineArticleDTO(routineArticle));
-        });
-
-        // Act
-
-        // then update by deleting one item in the list
-        for (RoutineArticleDTO routineArticle : shoppingList) {
-            routineArticleDTOToDelete = routineArticle;
-            break;
-        }
-
-        shoppingList.remove(routineArticleDTOToDelete);
-
-        shoppingListService.updateShoppingList(user.getUniqueId(), shoppingList);
-
-        user = userRepository.findById(user.getUniqueId()).get();
-
-        // Assert
-        // then verify if size has changed
-        assertTrue(initialSize - 1 == user.getShoppingList().size());
-    }
-
-    @Test
-    public void addArticlesToShoppingListTest_sameArticlesCase(){
+    public void addArticlesInShoppingListTest_sameArticlesCase(){
         // Arrange
         User user = userRepository.save(setUpUserWithLogic());
 
@@ -85,7 +47,7 @@ public class ShoppingListServiceTest {
                 .collect(Collectors.toList());
 
         // Act
-        List<RoutineArticle> newUserShoppingList = shoppingListService.addArticlesToShoppingList(user.getUniqueId(),routineArticles);
+        List<RoutineArticle> newUserShoppingList = shoppingListService.addArticlesInShoppingList(user.getUniqueId(),routineArticles);
 
         // Assert
         newUserShoppingList.forEach(routineArticle -> {
@@ -101,7 +63,28 @@ public class ShoppingListServiceTest {
     }
 
     @Test
-    public void addArticlesToShoppingListTest_differentArticlesCase(){
+    public void addArticlesInShoppingListTest_differentArticlesCase(){
+        // Arrange
+        User user = userRepository.save(setUpUserWithLogic());
+
+        final int shoppingListInitialSize = user.getShoppingList().size();
+        final int articleAmountToDelete = 2;
+        final int expectedShoppingListFinalSize = shoppingListInitialSize - articleAmountToDelete;
+
+        List<RoutineArticleDTO> routineArticles = user.getShoppingList().subList(0,articleAmountToDelete)
+                .stream()
+                .map(RoutineArticleDTO::new)
+                .collect(Collectors.toList());
+
+        // Act
+        List<RoutineArticle> newUserShoppingList = shoppingListService.deleteArticlesInShoppingList(user.getUniqueId(),routineArticles);
+
+        // Assert
+        assertEquals(expectedShoppingListFinalSize,newUserShoppingList.size());
+    }
+
+    @Test
+    public void deleteArticlesInShoppingListTest(){
         // Arrange
         User user = userRepository.save(setUpUserWithLogic());
 
@@ -115,7 +98,7 @@ public class ShoppingListServiceTest {
                 .collect(Collectors.toList());
 
         // Act
-        List<RoutineArticle> newUserShoppingList = shoppingListService.addArticlesToShoppingList(user.getUniqueId(),routineArticles);
+        List<RoutineArticle> newUserShoppingList = shoppingListService.addArticlesInShoppingList(user.getUniqueId(),routineArticles);
 
         // Assert
         assertEquals(expectedShoppingListFinalSize,newUserShoppingList.size());
@@ -130,7 +113,7 @@ public class ShoppingListServiceTest {
         List<RoutineArticle> userShoppingListFromService = shoppingListService.find(user.getUniqueId());
 
         // Assert
-        assertTrue(user.getShoppingList().equals(userShoppingListFromService));
+        assertEquals(user.getShoppingList(),userShoppingListFromService);
     }
 
     @Test

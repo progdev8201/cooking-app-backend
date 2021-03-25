@@ -21,7 +21,7 @@ public class AuthenticationService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(UserRepository userRepository, JwtProvider jwtProvider, PasswordEncoder passwordEncoder) {
+    public AuthenticationService(final UserRepository userRepository, final JwtProvider jwtProvider, final PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;
         this.passwordEncoder = passwordEncoder;
@@ -30,12 +30,12 @@ public class AuthenticationService {
     public JwtResponseDTO authenticate(@Valid final LoginFormDTO loginFormDTO) {
         final Optional<User> user = userRepository.findByEmail(loginFormDTO.getEmail());
 
-        if (user.isPresent() && passwordEncoder.matches(loginFormDTO.getPassword(), user.get().getPassword())){
+        if (user.isPresent() && passwordEncoder.matches(loginFormDTO.getPassword(), user.get().getPassword())) {
 
             final String token = jwtProvider.generate(user.get());
             final UUID userId = user.get().getUniqueId();
 
-            return new JwtResponseDTO(userId,token);
+            return new JwtResponseDTO(userId, token);
         }
 
         return null;

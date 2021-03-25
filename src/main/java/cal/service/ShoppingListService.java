@@ -22,61 +22,71 @@ import java.util.logging.Logger;
 @Service
 public class ShoppingListService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private ArticleService articleService;
+    private final ArticleService articleService;
 
     private final Logger LOGGER = Logger.getLogger(ShoppingListService.class.getName());
 
 
-    public ShoppingListService(UserRepository userRepository) {
+    public ShoppingListService(final UserRepository userRepository) {
         this.userRepository = userRepository;
         this.articleService = new ArticleService(userRepository);
     }
 
-    public List<RoutineArticle> updateShoppingList(@NotNull UUID userId, @NotNull Set<RoutineArticleDTO> shoppingListArticles) {
+    public List<RoutineArticle> addArticlesInShoppingList(@NotNull UUID userId, @NotNull List<RoutineArticleDTO> articlesToAdd) {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
-            u.getShoppingList().clear();
 
-            shoppingListArticles.forEach(routineArticleDTO -> {
-                u.getShoppingList().add(new RoutineArticle(routineArticleDTO));
-            });
-
-            userRepository.save(u);
-            LOGGER.info("SHOPPING LIST UPDATED!");
-        });
-
-        return user.get().getShoppingList();
-    }
-
-    public List<RoutineArticle> addArticlesToShoppingList(@NotNull UUID userId,@NotNull List<RoutineArticleDTO> articlesToAdd){
-        Optional<User> user = userRepository.findById(userId);
-
-        user.ifPresent(u->{
-
-            articlesToAdd.forEach(routineArticle ->{
+            articlesToAdd.forEach(routineArticle -> {
 
                 Optional<RoutineArticle> alreadyExistingRoutineArticle = u.getShoppingList()
                         .stream()
-                        .filter(routineArticle1 -> routineArticle1.getArticle().getId().equals(routineArticle.getArticle().getId()))
+                        .filter(routineArticle1 -> routineArticle1.getId().equals(routineArticle.getId()))
                         .findFirst();
 
-                if (alreadyExistingRoutineArticle.isPresent()){
+                if (alreadyExistingRoutineArticle.isPresent()) {
                     final int routineArticleIndex = u.getShoppingList().indexOf(alreadyExistingRoutineArticle.get());
 
                     final int quantityToAdd = alreadyExistingRoutineArticle.get().getQuantity() + routineArticle.getQuantity();
 
                     u.getShoppingList().get(routineArticleIndex).setQuantity(quantityToAdd);
-                }else{
+                } else {
                     u.getShoppingList().add(new RoutineArticle(routineArticle));
                 }
             });
 
+            LOGGER.info("ARTICLES ADDED TO SHOPPING LIST!");
         });
 
-        return user.get().getShoppingList();
+
+        return userRepository.save(user.get()).getShoppingList();
+    }
+
+    public List<RoutineArticle> deleteArticlesInShoppingList(@NotNull UUID userId, @NotNull List<RoutineArticleDTO> articlesToDelete) {
+        Optional<User> user = userRepository.findById(userId);
+
+        user.ifPresent(u -> {
+
+            articlesToDelete.forEach(routineArticle -> {
+
+                Optional<RoutineArticle> alreadyExistingRoutineArticle = u.getShoppingList()
+                        .stream()
+                        .filter(routineArticle1 -> routineArticle1.getId().equals(routineArticle.getId()))
+                        .findFirst();
+
+                if (alreadyExistingRoutineArticle.isPresent()) {
+                    final int routineArticleIndex = u.getShoppingList().indexOf(alreadyExistingRoutineArticle.get());
+
+                    u.getShoppingList().remove(routineArticleIndex);
+                }
+            });
+
+            LOGGER.info("ARTICLES DELETED IN SHOPPING LIST!");
+        });
+
+        return userRepository.save(user.get()).getShoppingList();
     }
 
     public List<RoutineArticle> find(@NotNull UUID userId) {
@@ -106,10 +116,11 @@ public class ShoppingListService {
     private void addTransactionAndUpdate(@NotNull UUID userId, @NotNull Article article, @NotNull int qty) {
         ArticleDTO articleToEdit = articleService.find(userId, article.getId());
 
-        for (int i = 0; i < qty; i++){
+        for (int i = 0; i < qty; i++) {
             articleToEdit.getTransactions().add(new TransactionDTO(UUID.randomUUID(), LocalDate.now(), article.getPrice()));
-            LOGGER.info("NEW TRANSACTION ADDED FOR ARTICLE: " + articleToEdit.getName());
         }
+
+        LOGGER.info(qty + " NEW TRANSACTION" + (qty > 1 ? "S" : "") + " ADDED FOR ARTICLE: " + articleToEdit.getName());
 
         articleService.update(articleToEdit, userId);
     }

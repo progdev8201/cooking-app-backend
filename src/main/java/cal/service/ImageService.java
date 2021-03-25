@@ -22,15 +22,15 @@ import java.util.logging.Logger;
 @Service
 public class ImageService {
 
-    private ImageRepository imageRepository;
-    private UserRepository userRepository;
-    private RecipeService recipeService;
-    private ArticleService articleService;
+    private final ImageRepository imageRepository;
+    private final UserRepository userRepository;
+    private final RecipeService recipeService;
+    private final ArticleService articleService;
     private final Logger LOGGER = Logger.getLogger(ImageService.class.getName());
 
     // CONSTRUCTORS
 
-    public ImageService(ImageRepository imageRepository, UserRepository userRepository) {
+    public ImageService(final ImageRepository imageRepository, final UserRepository userRepository) {
         this.imageRepository = imageRepository;
         this.userRepository = userRepository;
         recipeService = new RecipeService(this.userRepository);
@@ -83,11 +83,11 @@ public class ImageService {
         articleService.update(article, userId);
     }
 
-    private boolean isUUID(String id){
-        try{
+    private boolean isUUID(String id) {
+        try {
             UUID uuid = UUID.fromString(id);
             return true;
-        } catch (IllegalArgumentException exception){
+        } catch (IllegalArgumentException exception) {
             return false;
         }
     }

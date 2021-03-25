@@ -18,20 +18,20 @@ import java.util.logging.Logger;
 @Validated
 public class RegistrationService {
 
-    private UserRepository userRepository;
-    private  PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private final Logger LOGGER = Logger.getLogger(RegistrationService.class.getName());
 
 
-    public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public RegistrationService(final UserRepository userRepository, final PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     public void registerUser(@Valid RegistrationFormDTO registrationFormDTO) {
         User user = new User(UUID.randomUUID(), registrationFormDTO.getEmail(), passwordEncoder.encode(registrationFormDTO.getPassword()), registrationFormDTO.getFirstName(), registrationFormDTO.getLastName(), RoleName.CLIENT.toString());
-        Routine routine = new Routine(UUID.randomUUID(),"base",new ArrayList<>());
+        Routine routine = new Routine(UUID.randomUUID(), "base", new ArrayList<>());
 
         user.getRoutines().add(routine);
 

@@ -13,17 +13,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/shop")
 public class ShoppingController {
+
     @Autowired
     private ShoppingListService shoppingListService;
 
-    @PutMapping("{userId}")
-    public List<RoutineArticle> updateShoppingList(@PathVariable final UUID userId, @RequestBody Set<RoutineArticleDTO> shoppingListArticles) {
-        return shoppingListService.updateShoppingList(userId, shoppingListArticles);
+    @PutMapping("add/{userId}")
+    public List<RoutineArticle> addArticlesInShoppingList(@PathVariable final UUID userId, @RequestBody List<RoutineArticleDTO> articlesToAdd){
+        return shoppingListService.addArticlesInShoppingList(userId,articlesToAdd);
     }
 
-    @PutMapping("add/{userId}")
-    public List<RoutineArticle> addArticlesToShoppingList(@PathVariable final UUID userId, @RequestBody List<RoutineArticleDTO> articlesToAdd){
-        return shoppingListService.addArticlesToShoppingList(userId,articlesToAdd);
+    @PutMapping("delete/{userId}")
+    public List<RoutineArticle> deleteArticlesInShoppingList(@PathVariable final UUID userId, @RequestBody List<RoutineArticleDTO> articlesToDelete){
+        return shoppingListService.deleteArticlesInShoppingList(userId,articlesToDelete);
     }
 
     @GetMapping("{userId}")

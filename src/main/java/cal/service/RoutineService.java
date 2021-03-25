@@ -1,7 +1,6 @@
 package cal.service;
 
 import cal.model.dto.RoutineDTO;
-import cal.model.entity.Article;
 import cal.model.entity.Routine;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
@@ -19,16 +18,16 @@ import java.util.logging.Logger;
 @Service
 @Validated
 public class RoutineService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private final Logger LOGGER = Logger.getLogger(RoutineService.class.getName());
 
-    public RoutineService(UserRepository userRepository) {
+    public RoutineService(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     //CRUD
-    public void create(@Valid RoutineDTO routineDTO,@NotNull UUID userId) {
+    public void create(@Valid RoutineDTO routineDTO, @NotNull UUID userId) {
         userRepository.findById(userId).ifPresent(user -> {
             user.getRoutines().add(new Routine(routineDTO));
             userRepository.save(user);
@@ -38,7 +37,7 @@ public class RoutineService {
 
     }
 
-    public RoutineDTO find(UUID routineId,@NotNull UUID userId) {
+    public RoutineDTO find(UUID routineId, @NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
         List<RoutineDTO> routineDTOS = new ArrayList<>();
 
@@ -62,7 +61,7 @@ public class RoutineService {
         return routineDTOS;
     }
 
-    public RoutineDTO update(@Valid RoutineDTO routineDTO,@NotNull UUID userId) {
+    public RoutineDTO update(@Valid RoutineDTO routineDTO, @NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
@@ -79,7 +78,7 @@ public class RoutineService {
         return find(routineDTO.getId(), userId);
     }
 
-    public void delete(@NotNull UUID routineId,@NotNull UUID userId) {
+    public void delete(@NotNull UUID routineId, @NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {

@@ -20,11 +20,11 @@ import java.util.logging.Logger;
 @Service
 @Validated
 public class RecipeService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     private final Logger LOGGER = Logger.getLogger(RecipeService.class.getName());
 
 
-    public RecipeService(UserRepository userRepository){
+    public RecipeService(final UserRepository userRepository){
         this.userRepository = userRepository;
     }
 

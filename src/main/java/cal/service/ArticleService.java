@@ -23,11 +23,11 @@ import static cal.service.validator.ArticleServiceStaticValidator.uniqueArticleN
 @Validated
 public class ArticleService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private final Logger LOGGER = Logger.getLogger(ArticleService.class.getName());
 
-    public ArticleService(UserRepository userRepository) {
+    public ArticleService(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
