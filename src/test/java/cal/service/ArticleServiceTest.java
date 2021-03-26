@@ -29,12 +29,8 @@ public class ArticleServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @InjectMocks
     private ArticleService articleService;
-
-    @BeforeEach
-    public void before() {
-        articleService = new ArticleService(userRepository);
-    }
 
     @Test
     public void createArticleTest() {
@@ -58,7 +54,6 @@ public class ArticleServiceTest {
 
         articleService.create(articleDTO, user.getUniqueId());
     }
-
 
     @Test
     public void findAllTest() {

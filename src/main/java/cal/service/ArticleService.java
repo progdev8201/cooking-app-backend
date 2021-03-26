@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public class ArticleService {
         this.userRepository = userRepository;
     }
 
-    public ArticleDTO create(@Valid ArticleDTO articleDTO, UUID userId) {
+    public ArticleDTO create(@Valid ArticleDTO articleDTO,@NotNull UUID userId) {
 
         Optional<User> user = userRepository.findById(userId);
         Article article = new Article(articleDTO);
@@ -49,17 +50,17 @@ public class ArticleService {
         return find(userId, article.getId());
     }
 
-    public List<ArticleDTO> findAll(UUID userId) {
+    public List<ArticleDTO> findAll(@NotNull UUID userId) {
         Optional<UserDTO> userDTO = userRepository.findById(userId).stream().map(UserDTO::new).findFirst();
 
         return userDTO.isPresent() ? userDTO.get().getArticles() : null;
     }
 
-    public ArticleDTO find(UUID userId, UUID articleId) {
+    public ArticleDTO find(@NotNull UUID userId,@NotNull UUID articleId) {
         return findAll(userId).stream().filter(articleDTO -> articleDTO.getId().equals(articleId)).findFirst().orElse(null);
     }
 
-    public ArticleDTO update(@Valid ArticleDTO articleDTO, UUID userId) {
+    public ArticleDTO update(@Valid ArticleDTO articleDTO,@NotNull UUID userId) {
 
         // find user then update his article then save the client then return the article
         Optional<User> user = userRepository.findById(userId);
@@ -75,7 +76,7 @@ public class ArticleService {
         return find(userId, articleDTO.getId());
     }
 
-    public void delete(UUID articleId, UUID userId) {
+    public void delete(@NotNull UUID articleId,@NotNull UUID userId) {
         // find user then find article list then delete article then save user
         Optional<User> user = userRepository.findById(userId);
 
@@ -86,7 +87,7 @@ public class ArticleService {
         });
     }
 
-    public List<String> findAllOccurences(UUID userId, UUID articleId) {
+    public List<String> findAllOccurences(@NotNull UUID userId,@NotNull UUID articleId) {
         //find user
         List<String> placesFound = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
@@ -101,7 +102,7 @@ public class ArticleService {
         return placesFound;
     }
 
-    private void updateAllOccurences(ArticleDTO articleDTO, User u) {
+    public void updateAllOccurences(@Valid ArticleDTO articleDTO,@NotNull User u) {
         // update in user article list
         updateArticleInUserArticlesList(articleDTO, u);
 
@@ -124,7 +125,7 @@ public class ArticleService {
         updateArticleInFridgeMissingArticles(articleDTO, u);
     }
 
-    private void updateArticleInFridgeMissingArticles(@Valid ArticleDTO articleDTO, User u) {
+    private void updateArticleInFridgeMissingArticles(@Valid ArticleDTO articleDTO,@NotNull User u) {
         Optional<RoutineArticle> missingRoutineArticleToUpdate = u.getFridge().getMissingArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
         missingRoutineArticleToUpdate.ifPresent(routineArticle -> {
@@ -134,7 +135,7 @@ public class ArticleService {
         });
     }
 
-    private void updateArticleInFridgeAvailableArticles(@Valid ArticleDTO articleDTO, User u) {
+    private void updateArticleInFridgeAvailableArticles(@Valid ArticleDTO articleDTO,@NotNull User u) {
         Optional<RoutineArticle> availableRoutineArticleToUpdate = u.getFridge().getAvailableArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
         availableRoutineArticleToUpdate.ifPresent(routineArticle -> {
@@ -144,7 +145,7 @@ public class ArticleService {
         });
     }
 
-    private void updateArticleInFridgeAvailablerecipes(@Valid ArticleDTO articleDTO, User u) {
+    private void updateArticleInFridgeAvailablerecipes(@Valid ArticleDTO articleDTO,@NotNull User u) {
         u.getFridge().getAvailableRecipes().forEach(recipe -> {
             Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
@@ -155,7 +156,7 @@ public class ArticleService {
         });
     }
 
-    private void updateArticleInUserRecipes(@Valid ArticleDTO articleDTO, User u) {
+    private void updateArticleInUserRecipes(@Valid ArticleDTO articleDTO,@NotNull User u) {
         u.getRecipes().forEach(recipe -> {
             Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
@@ -166,7 +167,7 @@ public class ArticleService {
         });
     }
 
-    private void updateArticleInShoppingList(@Valid ArticleDTO articleDTO, User u) {
+    private void updateArticleInShoppingList(@Valid ArticleDTO articleDTO,@NotNull User u) {
         Optional<RoutineArticle> routineArticleToUpdate = u.getShoppingList().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
         routineArticleToUpdate.ifPresent(routineArticle -> {
@@ -175,7 +176,7 @@ public class ArticleService {
         });
     }
 
-    private void updateArticleInUserRoutinesList(ArticleDTO articleDTO, User u) {
+    private void updateArticleInUserRoutinesList(@Valid ArticleDTO articleDTO,@NotNull User u) {
         u.getRoutines().forEach(routine -> {
             Optional<RoutineArticle> routineArticleToUpdate = routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
@@ -186,7 +187,7 @@ public class ArticleService {
         });
     }
 
-    private void updateArticleInUserArticlesList(ArticleDTO articleDTO, User u) {
+    private void updateArticleInUserArticlesList(@Valid ArticleDTO articleDTO,@NotNull User u) {
         Optional<Article> articleToUpdate = u.getArticles().stream().filter(article -> article.getId().equals(articleDTO.getId())).findFirst();
 
         articleToUpdate.ifPresent(article -> {
@@ -195,7 +196,7 @@ public class ArticleService {
         });
     }
 
-    private void deleteInAllEntity(UUID articleId, User u) {
+    private void deleteInAllEntity(@NotNull UUID articleId,@NotNull User u) {
         // check in user article list
         deleteInAllUserArticles(articleId, u);
 

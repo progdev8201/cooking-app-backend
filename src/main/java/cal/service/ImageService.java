@@ -60,7 +60,7 @@ public class ImageService {
 
 
     // PRIVATE METHODS
-
+    // todo make this method generic
     private void attributeImageToRecipe(UUID userId, UUID imageObjectId, Image image) {
         RecipeDTO recipe = recipeService.find(userId, imageObjectId);
 
@@ -85,7 +85,7 @@ public class ImageService {
 
     private boolean isUUID(String id) {
         try {
-            UUID uuid = UUID.fromString(id);
+            UUID.fromString(id);
             return true;
         } catch (IllegalArgumentException exception) {
             return false;

@@ -32,8 +32,8 @@ public class ShoppingController {
         return shoppingListService.find(userId);
     }
 
-    @GetMapping("shopAll/{userId}")
-    public void shop(@PathVariable final UUID userId) {
-        shoppingListService.shop(userId);
+    @PostMapping("shopAll/{userId}")
+    public void shop(@PathVariable final UUID userId,@RequestBody final List<RoutineArticleDTO> articlesToShop) {
+        shoppingListService.shop(userId,articlesToShop);
     }
 }

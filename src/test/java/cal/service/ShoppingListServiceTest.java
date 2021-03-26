@@ -107,7 +107,7 @@ public class ShoppingListServiceTest {
     @Test
     public void findTest() {
         // Arrange
-        User user = userRepository.save(setUpUser());
+        User user = userRepository.save(setUpUserWithLogic());
 
         // Act
         List<RoutineArticle> userShoppingListFromService = shoppingListService.find(user.getUniqueId());
@@ -120,29 +120,23 @@ public class ShoppingListServiceTest {
     public void shopTest() {
         // Arrange
         //shop routine then make sure routine is empty
-        User user = userRepository.save(setUpUser());
-        ShoppingListService shoppingListService = new ShoppingListService(userRepository);
-        int initialSize = user.getShoppingList().size();
+        User user = userRepository.save(setUpUserWithLogic());
+
+        List<RoutineArticleDTO> shoppingList = user.getShoppingList().subList(0,5)
+                .stream()
+                .map(RoutineArticleDTO::new)
+                .collect(Collectors.toList());
+
+        final int finalSize = user.getShoppingList().size() - shoppingList.size();
 
         // Act
-        shoppingListService.shop(user.getUniqueId());
+        shoppingListService.shop(user.getUniqueId(),shoppingList);
+
         user = userRepository.findById(user.getUniqueId()).get();
 
         // Assert
-        assertTrue(initialSize > 0 && user.getShoppingList().isEmpty());
+        assertEquals(finalSize,user.getShoppingList().size());
     }
 
-    private User setUpUser() {
-        // set up user
-        User user = new User(UUID.randomUUID(), "test2@mail.com", "test", "test", "test", "test");
 
-        //set up une shopping list
-        for (int i = 0; i < 10; i++) {
-            Article article = new Article(UUID.randomUUID(), "test" + i, "test", 5.99f, "test", ArticleType.LIQUID, ArticleCategorie.DAIRIES);
-            user.getArticles().add(article);
-            user.getShoppingList().add(new RoutineArticle(UUID.randomUUID(), article, i));
-        }
-
-        return user;
-    }
 }
