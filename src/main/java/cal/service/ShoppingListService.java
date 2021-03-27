@@ -2,7 +2,6 @@ package cal.service;
 
 import cal.model.dto.ArticleDTO;
 import cal.model.dto.RoutineArticleDTO;
-import cal.model.dto.TransactionDTO;
 import cal.model.entity.Article;
 import cal.model.entity.RoutineArticle;
 import cal.model.entity.Transaction;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Validated
 @Service
@@ -61,8 +59,7 @@ public class ShoppingListService {
             LOGGER.info("ARTICLES ADDED TO SHOPPING LIST!");
         });
 
-
-        return userRepository.save(user.get()).getShoppingList();
+        return user.isPresent() ? userRepository.save(user.get()).getShoppingList() : null;
     }
 
     public List<RoutineArticle> deleteArticlesInShoppingList(@NotNull UUID userId, @NotNull List<RoutineArticleDTO> articlesToDelete) {
@@ -77,8 +74,7 @@ public class ShoppingListService {
                         .filter(routineArticle1 -> routineArticle1.getId().equals(routineArticle.getId()))
                         .findFirst();
 
-                if (alreadyExistingRoutineArticle.isPresent())
-                    u.getShoppingList().remove(alreadyExistingRoutineArticle.get());
+                alreadyExistingRoutineArticle.ifPresent(u.getShoppingList()::remove);
             });
 
             LOGGER.info("ARTICLES DELETED IN SHOPPING LIST!");
@@ -98,11 +94,11 @@ public class ShoppingListService {
 
         user.ifPresent(u -> {
 
-            articlesToShop.stream().forEach(routineArticle -> {
+            articlesToShop.forEach(routineArticle -> {
 
                 Optional<RoutineArticle> routineArticleToShop = u.getShoppingList()
                         .stream()
-                        .filter(similarRoutineArticle -> similarRoutineArticle.getId().equals(routineArticle.getId()))
+                        .filter(similarRoutineArticle -> similarRoutineArticle.getArticle().getId().equals(routineArticle.getArticle().getId()))
                         .findFirst();
 
                 if (routineArticleToShop.isPresent()) {
@@ -124,16 +120,21 @@ public class ShoppingListService {
     }
 
     private Article addTransactionAndUpdate(User user, @NotNull UUID articleId, @NotNull int qty) {
-        Article articleToEdit = user.getArticles().stream().filter(article1 -> article1.getId().equals(articleId)).findFirst().get();
+        Optional<Article> articleToEdit = user.getArticles().stream().filter(article1 -> article1.getId().equals(articleId)).findFirst();
 
-        for (int i = 0; i < qty; i++) {
-            articleToEdit.getTransactions().add(new Transaction(UUID.randomUUID(), LocalDate.now(), articleToEdit.getPrice()));
+        if (articleToEdit.isPresent()) {
+
+            for (int i = 0; i < qty; i++) {
+                articleToEdit.get().getTransactions().add(new Transaction(UUID.randomUUID(), LocalDate.now(), articleToEdit.get().getPrice()));
+            }
+
+            LOGGER.info(qty + " NEW TRANSACTION" + (qty > 1 ? "S" : "") + " ADDED FOR ARTICLE: " + articleToEdit.get().getName());
+
+            articleService.updateAllOccurences(new ArticleDTO(articleToEdit.get()), user);
+
+            return articleToEdit.get();
         }
 
-        LOGGER.info(qty + " NEW TRANSACTION" + (qty > 1 ? "S" : "") + " ADDED FOR ARTICLE: " + articleToEdit.getName());
-
-        articleService.updateAllOccurences(new ArticleDTO(articleToEdit),user);
-
-        return articleToEdit;
+        return null;
     }
 }
