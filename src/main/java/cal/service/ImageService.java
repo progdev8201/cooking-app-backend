@@ -4,7 +4,6 @@ import cal.model.dto.ArticleDTO;
 import cal.model.dto.RecipeDTO;
 import cal.model.entity.Image;
 import cal.repository.ImageRepository;
-import cal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ByteArrayResource;
@@ -18,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -49,15 +49,20 @@ public class ImageService {
     }
 
     public ResponseEntity<Resource> download(UUID imageId) {
-        Image image = imageRepository.findById(imageId).get();
+        Optional<Image> image = imageRepository.findById(imageId);
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(image.getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName() + "\"")
-                .body(new ByteArrayResource(image.getData()));
+        if (image.isPresent()) {
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(image.get().getFileType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.get().getFileName() + "\"")
+                    .body(new ByteArrayResource(image.get().getData()));
+        }
+
+        return null;
     }
 
-    public void deleteImage(String imageId){
+    public void deleteImage(String imageId) {
         if (isUUID(imageId))
             imageRepository.deleteById(UUID.fromString(imageId));
     }

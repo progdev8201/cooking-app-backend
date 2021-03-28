@@ -88,9 +88,9 @@ public class ArticleService {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
-            deleteInAllEntity(articleId, u);
-
             deleteArticleImage(articleId, u);
+
+            deleteInAllEntity(articleId, u);
 
             userRepository.save(u);
         });
@@ -102,7 +102,7 @@ public class ArticleService {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
-            boolean articlePresent = u.getArticles().stream().filter(article -> article.getId().equals(articleId)).findFirst().isPresent();
+            boolean articlePresent = u.getArticles().stream().anyMatch(article -> article.getId().equals(articleId));
 
             if (articlePresent)
                 checkAllEntitiesForArticle(articleId, placesFound, u);
@@ -321,19 +321,14 @@ public class ArticleService {
 
     private void checkShoppingListForArticle(UUID articleId, User u, List<String> placesFound) {
         Optional<RoutineArticle> routineArticleToDelete = u.getShoppingList().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleId)).findFirst();
-        routineArticleToDelete.ifPresent(routineArticle -> {
-            placesFound.add("shopping list");
-        });
+        routineArticleToDelete.ifPresent(routineArticle -> placesFound.add("shopping list"));
     }
 
     private void checkAllFridgeAvailableRecipesForArticle(UUID articleId, List<String> placesFound, User u) {
         u.getFridge().getAvailableRecipes()
-                .stream()
                 .forEach(recipe -> {
                     Optional<RecipeArticle> recipeArticleToDelete = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleId)).findFirst();
-                    recipeArticleToDelete.ifPresent(recipeArticle -> {
-                        placesFound.add("fridge available recipes: " + recipe.getName());
-                    });
+                    recipeArticleToDelete.ifPresent(recipeArticle -> placesFound.add("fridge available recipes: " + recipe.getName()));
                 });
     }
 
@@ -351,7 +346,6 @@ public class ArticleService {
 
     private void CheckAllUserRecipesForArticle(UUID articleId, List<String> placesFound, User u) {
         u.getRecipes()
-                .stream()
                 .forEach(recipe -> {
                     if (recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleId)).findFirst().isPresent())
                         placesFound.add("recipe: " + recipe.getName());
@@ -360,9 +354,8 @@ public class ArticleService {
 
     private void checkAllRoutineForArticle(UUID articleId, List<String> placesFound, User u) {
         u.getRoutines()
-                .stream()
                 .forEach(routine -> {
-                    if (routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleId)).findFirst().isPresent())
+                    if (routine.getRoutineArticles().stream().anyMatch(routineArticle -> routineArticle.getArticle().getId().equals(articleId)))
                         placesFound.add("routine: " + routine.getName());
                 });
     }

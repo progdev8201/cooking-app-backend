@@ -8,7 +8,6 @@ import cal.model.enums.ArticleCategorie;
 import cal.model.enums.ArticleType;
 import cal.model.enums.RecipeType;
 import cal.model.enums.UnitMeasurement;
-import cal.repository.ImageRepository;
 import cal.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
@@ -40,7 +40,7 @@ public class ImageServiceTest {
     private UserRepository userRepository;
 
     @Test
-    public void uploadImage_withArticle() throws IOException {
+    public void uploadAndDownloadImage_withArticle() throws IOException {
         //ARRANGE
         User user = userRepository.save(setUpUser());
 
@@ -58,7 +58,7 @@ public class ImageServiceTest {
     }
 
     @Test
-    public void uploadImage_withRecipe() throws IOException {
+    public void uploadAndDownloadImage_withRecipe() throws IOException {
         //ARRANGE
         User user = userRepository.save(setUpUser());
 
@@ -76,7 +76,7 @@ public class ImageServiceTest {
     }
 
     @Test
-    public void uploadImage_withRecipe_withBadUUIDFormat() throws IOException {
+    public void uploadAndDownloadImage_withRecipe_withBadUUIDFormat() throws IOException {
         //ARRANGE
         User user = setUpUser();
         user.getRecipes().get(0).setImage("unvalid uuid");
@@ -93,6 +93,28 @@ public class ImageServiceTest {
 
         //ASSERT
         assertEquals(fileByte.getBody(), new ByteArrayResource(file.getBytes()));
+    }
+
+    @Test
+    public void uploadAndDownloadImage_withRecipe_withNullReturned() throws IOException {
+        //ARRANGE
+        User user = setUpUser();
+        user.getRecipes().get(0).setImage("unvalid uuid");
+        user = userRepository.save(user);
+
+        MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
+
+        //ACT
+        imageService.uploadImage(file, user.getUniqueId(), user.getRecipes().get(0).getId(), false);
+
+        user = userRepository.findById(user.getUniqueId()).get();
+
+        imageService.deleteImage(user.getRecipes().get(0).getImage());
+
+        ResponseEntity<Resource> fileByte = imageService.download(UUID.fromString(user.getRecipes().get(0).getImage()));
+
+        //ASSERT
+        assertNull(fileByte);
     }
 
 

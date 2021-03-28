@@ -87,7 +87,11 @@ public class RecipeService {
                 // should remove recipe everywhere
                 u.getRecipes().remove(recipe);
 
+                if (recipe.getImage() != null)
+                    imageService.deleteImage(recipe.getImage());
+
                 userRepository.save(u);
+
                 LOGGER.info("RECIPE DELETED WITH SUCCESS");
             });
         });

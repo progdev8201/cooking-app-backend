@@ -1,10 +1,7 @@
 package cal.service;
 
 import cal.model.dto.ArticleDTO;
-import cal.model.entity.Article;
-import cal.model.entity.RecipeArticle;
-import cal.model.entity.RoutineArticle;
-import cal.model.entity.User;
+import cal.model.entity.*;
 import cal.model.enums.ArticleCategorie;
 import cal.model.enums.ArticleType;
 import cal.repository.UserRepository;
@@ -15,10 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +26,9 @@ public class ArticleServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ImageService imageService;
 
     @InjectMocks
     private ArticleService articleService;
@@ -118,6 +120,7 @@ public class ArticleServiceTest {
         final int articleIndex = 0;
 
         Article article = user.getArticles().get(articleIndex);
+        article.setImage(UUID.randomUUID().toString());
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
@@ -217,17 +220,13 @@ public class ArticleServiceTest {
         // check in all recipes list
         user.getRecipes().forEach(recipe -> {
             Optional<RecipeArticle> recipeArticleToFind = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleToUpdateDto.getId())).findFirst();
-            recipeArticleToFind.ifPresent(recipeArticle -> {
-                assertArticle(articleToUpdateDto,recipeArticle.getArticle());
-            });
+            recipeArticleToFind.ifPresent(recipeArticle -> assertArticle(articleToUpdateDto,recipeArticle.getArticle()));
         });
 
         // check in all fridge available recipes
         user.getFridge().getAvailableRecipes().forEach(recipe -> {
             Optional<RecipeArticle> recipeArticleToFind = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleToUpdateDto.getId())).findFirst();
-            recipeArticleToFind.ifPresent(recipeArticle -> {
-                assertArticle(articleToUpdateDto,recipeArticle.getArticle());
-            });
+            recipeArticleToFind.ifPresent(recipeArticle -> assertArticle(articleToUpdateDto,recipeArticle.getArticle()));
         });
 
         // check in all fridge available articles
@@ -248,7 +247,7 @@ public class ArticleServiceTest {
         assertEquals(articleDTO.getImage(), article.getImage());
         assertEquals(articleDTO.getArticleType(), article.getArticleType());
         assertEquals(articleDTO.getArticleCategorie(), article.getArticleCategorie());
-        assertEquals(articleDTO.getTransactions(), article.getTransactions());
+        assertEquals(articleDTO.getTransactions().stream().map(Transaction::new).collect(Collectors.toList()), article.getTransactions());
     }
 
     private User setUpUser() {

@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
-@Import(RecipeService.class)
+@Import({RecipeService.class,ImageService.class})
 public class RecipeServiceTest {
 
     @Autowired
@@ -115,7 +115,7 @@ public class RecipeServiceTest {
                 recipeArticles.add(new RecipeArticle(UUID.randomUUID(),article,"5g", UnitMeasurement.CUP));
             }
 
-            user.getRecipes().add(new Recipe(UUID.randomUUID(),"spaghetti",recipeArticles,"","","",RecipeType.BREAKFAST,5));
+            user.getRecipes().add(new Recipe(UUID.randomUUID(),"spaghetti",recipeArticles,UUID.randomUUID().toString(),"","",RecipeType.BREAKFAST,5));
         }
 
         return user;

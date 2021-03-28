@@ -47,8 +47,8 @@ public class EntityGenerator {
                 .map(article -> new RecipeArticle(UUID.randomUUID(),article,"test",UnitMeasurement.CUP))
                 .collect(Collectors.toList());
 
-        Recipe recipe = new Recipe(UUID.randomUUID(),"test",recipeArticlesPart1,"test","test","test", RecipeType.BREAKFAST,5);
-        Recipe recipe2 = new Recipe(UUID.randomUUID(),"test",recipeArticlesPart2,"test","test","test", RecipeType.BREAKFAST,5);
+        Recipe recipe = new Recipe(UUID.randomUUID(),"test",recipeArticlesPart1,UUID.randomUUID().toString(),"test","test", RecipeType.BREAKFAST,5);
+        Recipe recipe2 = new Recipe(UUID.randomUUID(),"test",recipeArticlesPart2,UUID.randomUUID().toString(),"test","test", RecipeType.BREAKFAST,5);
 
         // create a fridge
         Fridge fridge = new Fridge();
@@ -69,7 +69,7 @@ public class EntityGenerator {
 
     // todo might have to delete all of those methods if not used
     public static Article generateArticle(){
-        return new Article(UUID.randomUUID(),"test", "test", 5.99f, "test", ArticleType.SOLID,ArticleCategorie.CEREAL);
+        return new Article(UUID.randomUUID(),"test", "test", 5.99f, UUID.randomUUID().toString(), ArticleType.SOLID,ArticleCategorie.CEREAL);
     }
 
     public static RoutineArticle generateRoutineArticle(){
