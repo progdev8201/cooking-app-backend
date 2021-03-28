@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
+@Import({ImageService.class,RecipeService.class,ArticleService.class})
 public class ImageServiceTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private ImageService imageService;
 
     @Autowired
-    private ImageRepository imageRepository;
-
+    private UserRepository userRepository;
 
     @Test
     public void uploadImage_withArticle() throws IOException {
@@ -44,8 +45,6 @@ public class ImageServiceTest {
         User user = userRepository.save(setUpUser());
 
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
-
-        ImageService imageService = new ImageService(imageRepository, userRepository);
 
         //ACT
         imageService.uploadImage(file, user.getUniqueId(), user.getArticles().get(0).getId(), true);
@@ -64,8 +63,6 @@ public class ImageServiceTest {
         User user = userRepository.save(setUpUser());
 
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
-
-        ImageService imageService = new ImageService(imageRepository, userRepository);
 
         //ACT
         imageService.uploadImage(file, user.getUniqueId(), user.getRecipes().get(0).getId(), false);
@@ -86,9 +83,6 @@ public class ImageServiceTest {
         user = userRepository.save(user);
 
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
-
-        ImageService imageService = new ImageService(imageRepository, userRepository);
-
 
         //ACT
         imageService.uploadImage(file, user.getUniqueId(), user.getRecipes().get(0).getId(), false);

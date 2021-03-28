@@ -5,6 +5,7 @@ import cal.model.dto.LoginFormDTO;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
 import cal.security.JwtProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -17,15 +18,16 @@ import java.util.UUID;
 @Validated
 public class AuthenticationService {
 
-    private final UserRepository userRepository;
-    private final JwtProvider jwtProvider;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private  UserRepository userRepository;
 
-    public AuthenticationService(final UserRepository userRepository, final JwtProvider jwtProvider, final PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.jwtProvider = jwtProvider;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    private  JwtProvider jwtProvider;
+
+    @Autowired
+    private  PasswordEncoder passwordEncoder;
+
+    // SERVICES
 
     public JwtResponseDTO authenticate(@Valid final LoginFormDTO loginFormDTO) {
         final Optional<User> user = userRepository.findByEmail(loginFormDTO.getEmail());
@@ -40,4 +42,5 @@ public class AuthenticationService {
 
         return null;
     }
+
 }

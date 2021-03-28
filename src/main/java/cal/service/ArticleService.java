@@ -6,7 +6,11 @@ import cal.model.entity.Article;
 import cal.model.entity.RecipeArticle;
 import cal.model.entity.RoutineArticle;
 import cal.model.entity.User;
+import cal.repository.ImageRepository;
 import cal.repository.UserRepository;
+import org.apache.commons.codec.binary.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -24,13 +28,16 @@ import static cal.service.validator.ArticleServiceStaticValidator.uniqueArticleN
 @Validated
 public class ArticleService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Lazy
+    @Autowired
+    private ImageService imageService;
 
     private final Logger LOGGER = Logger.getLogger(ArticleService.class.getName());
 
-    public ArticleService(final UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    // SERVICES
 
     public ArticleDTO create(@Valid ArticleDTO articleDTO,@NotNull UUID userId) {
 
@@ -83,6 +90,8 @@ public class ArticleService {
         user.ifPresent(u -> {
             deleteInAllEntity(articleId, u);
 
+            deleteArticleImage(articleId, u);
+
             userRepository.save(u);
         });
     }
@@ -124,6 +133,8 @@ public class ArticleService {
         // update in user fridge missing articles
         updateArticleInFridgeMissingArticles(articleDTO, u);
     }
+
+    // PRIVATE UTILITY METHODS TODO ADD IN UTILITY CLASS
 
     private void updateArticleInFridgeMissingArticles(@Valid ArticleDTO articleDTO,@NotNull User u) {
         Optional<RoutineArticle> missingRoutineArticleToUpdate = u.getFridge().getMissingArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
@@ -219,8 +230,6 @@ public class ArticleService {
         deleteInShoppingList(articleId, u);
     }
 
-    // private utility methods
-
     private void deleteInShoppingList(UUID articleId, User u) {
         Optional<RoutineArticle> routineArticleToDelete = u.getShoppingList().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleId)).findFirst();
         routineArticleToDelete.ifPresent(routineArticle -> {
@@ -228,6 +237,7 @@ public class ArticleService {
             LOGGER.info("NEW ARTICLE DELETED IN SHOPPING LIST");
         });
     }
+
 
     private void deleteInAllUserArticles(UUID articleId, User u) {
         Optional<Article> articleToDelete = u.getArticles().stream().filter(article -> article.getId().equals(articleId)).findFirst();
@@ -355,5 +365,14 @@ public class ArticleService {
                     if (routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleId)).findFirst().isPresent())
                         placesFound.add("routine: " + routine.getName());
                 });
+    }
+
+    private void deleteArticleImage(UUID articleId, User u) {
+        Optional<Article> articleToDeleteImage = u.getArticles().stream().filter(article -> article.getId().equals(articleId)).findFirst();
+
+        articleToDeleteImage.ifPresent(article -> {
+            if (article.getImage() != null)
+                imageService.deleteImage(article.getImage());
+        });
     }
 }

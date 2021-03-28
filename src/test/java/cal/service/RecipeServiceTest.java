@@ -10,12 +10,11 @@ import cal.model.enums.ArticleType;
 import cal.model.enums.RecipeType;
 import cal.model.enums.UnitMeasurement;
 import cal.repository.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
@@ -26,17 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
+@Import(RecipeService.class)
 public class RecipeServiceTest {
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
     private RecipeService recipeService;
-
-    @BeforeEach
-    public void before(){
-        recipeService = new RecipeService(userRepository);
-    }
 
     @Test
     public void createTest(){

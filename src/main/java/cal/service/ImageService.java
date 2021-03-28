@@ -5,6 +5,8 @@ import cal.model.dto.RecipeDTO;
 import cal.model.entity.Image;
 import cal.repository.ImageRepository;
 import cal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -22,21 +24,18 @@ import java.util.logging.Logger;
 @Service
 public class ImageService {
 
-    private final ImageRepository imageRepository;
-    private final UserRepository userRepository;
-    private final RecipeService recipeService;
-    private final ArticleService articleService;
+    @Autowired
+    private ImageRepository imageRepository;
+
+    @Lazy
+    @Autowired
+    private RecipeService recipeService;
+
+    @Lazy
+    @Autowired
+    private ArticleService articleService;
+
     private final Logger LOGGER = Logger.getLogger(ImageService.class.getName());
-
-    // CONSTRUCTORS
-
-    public ImageService(final ImageRepository imageRepository, final UserRepository userRepository) {
-        this.imageRepository = imageRepository;
-        this.userRepository = userRepository;
-        recipeService = new RecipeService(this.userRepository);
-        articleService = new ArticleService(this.userRepository);
-    }
-
 
     // SERVICES
 
@@ -56,6 +55,11 @@ public class ImageService {
                 .contentType(MediaType.parseMediaType(image.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName() + "\"")
                 .body(new ByteArrayResource(image.getData()));
+    }
+
+    public void deleteImage(String imageId){
+        if (isUUID(imageId))
+            imageRepository.deleteById(UUID.fromString(imageId));
     }
 
 

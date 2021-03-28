@@ -4,6 +4,7 @@ import cal.model.dto.RoutineDTO;
 import cal.model.entity.Routine;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -18,15 +19,14 @@ import java.util.logging.Logger;
 @Service
 @Validated
 public class RoutineService {
-    private final UserRepository userRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final Logger LOGGER = Logger.getLogger(RoutineService.class.getName());
 
-    public RoutineService(final UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    // SERVICES
 
-    //CRUD
     public void create(@Valid RoutineDTO routineDTO, @NotNull UUID userId) {
         userRepository.findById(userId).ifPresent(user -> {
             user.getRoutines().add(new Routine(routineDTO));

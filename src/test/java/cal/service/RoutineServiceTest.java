@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
@@ -24,10 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
+@Import(RoutineService.class)
 public class RoutineServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoutineService routineService;
 
     @Test
     public void createRoutineTest() {
@@ -35,8 +40,6 @@ public class RoutineServiceTest {
         User user = userRepository.save(setUpUser());
 
         int userRoutinesQty = user.getRoutines().size();
-
-        RoutineService routineService = new RoutineService(userRepository);
 
         RoutineDTO routineToCreate = new RoutineDTO(user.getRoutines().get(0));
         routineToCreate.setId(UUID.randomUUID());
@@ -56,8 +59,6 @@ public class RoutineServiceTest {
         //ARRANGE
         User user = userRepository.save(setUpUser());
 
-        RoutineService routineService = new RoutineService(userRepository);
-
         //ACT
         List<RoutineDTO> routineDTOS = routineService.findAll(user.getUniqueId());
 
@@ -74,8 +75,6 @@ public class RoutineServiceTest {
         String routineName = "fekoum";
 
         RoutineDTO routineDTO = new RoutineDTO(user.getRoutines().get(indexOfRoutine));
-        RoutineService routineService = new RoutineService(userRepository);
-
 
         //ACT
         routineDTO.setName(routineName);
@@ -93,8 +92,6 @@ public class RoutineServiceTest {
         User user = userRepository.save(setUpUser());
 
         int amountOfRoutines = user.getRoutines().size();
-
-        RoutineService routineService = new RoutineService(userRepository);
 
         //ACT
         routineService.delete(user.getRoutines().get(0).getId(), user.getUniqueId());

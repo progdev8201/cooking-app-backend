@@ -6,6 +6,7 @@ import cal.model.dto.RecipeDTO;
 import cal.model.entity.Fridge;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -20,14 +21,16 @@ import java.util.logging.Logger;
 @Service
 @Validated
 public class FridgeService {
-    private final UserRepository userRepository;
-    private final RecipeService recipeService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RecipeService recipeService;
+
     private final Logger LOGGER = Logger.getLogger(FridgeService.class.getName());
 
-    public FridgeService(final UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.recipeService = new RecipeService(userRepository);
-    }
+    // SERVICES
 
     public FridgeDTO find(@NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
@@ -60,6 +63,8 @@ public class FridgeService {
 
         return findCookableRecipes(validArticles, allRecipes);
     }
+
+    // PRIVATE METHODS
 
     private List<RecipeDTO> findCookableRecipes(List<ArticleDTO> validArticles, List<RecipeDTO> allRecipes) {
         List<RecipeDTO> cookableRecipe = new ArrayList<>();

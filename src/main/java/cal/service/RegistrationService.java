@@ -5,6 +5,7 @@ import cal.model.entity.Routine;
 import cal.model.entity.User;
 import cal.model.enums.RoleName;
 import cal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -18,16 +19,15 @@ import java.util.logging.Logger;
 @Validated
 public class RegistrationService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private final Logger LOGGER = Logger.getLogger(RegistrationService.class.getName());
 
-
-    public RegistrationService(final UserRepository userRepository, final PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    // SERVICES
 
     public void registerUser(@Valid RegistrationFormDTO registrationFormDTO) {
         User user = new User(UUID.randomUUID(), registrationFormDTO.getEmail(), passwordEncoder.encode(registrationFormDTO.getPassword()), registrationFormDTO.getFirstName(), registrationFormDTO.getLastName(), RoleName.CLIENT.toString());
@@ -39,4 +39,5 @@ public class RegistrationService {
 
         LOGGER.info("CLIENT REGISTRATION SUCCESS!");
     }
+
 }

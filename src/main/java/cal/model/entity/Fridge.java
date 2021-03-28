@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 @Data
 public class Fridge {
+
     private UUID id;
     private List<RoutineArticle> availableArticles;
     private List<Recipe> availableRecipes;

@@ -5,6 +5,7 @@ import cal.model.entity.User;
 import cal.model.enums.RoleName;
 import cal.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,13 +23,15 @@ public class RegistrationServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RegistrationService registrationService;
+
     @Test
     public void registerUservalidRequest() {
 
         // Arrange
-        RegistrationService service = new RegistrationService(userRepository, passwordEncoder);
         //todo find out why test passes even if we dont pass in a valid email
-        RegistrationFormDTO registrationFormDTO = new RegistrationFormDTO("test", "123456789", "test", "test");
+        RegistrationFormDTO registrationFormDTO = new RegistrationFormDTO("test@mail.com", "123456789", "test", "test");
 
         // Act & assert
         Mockito.when(userRepository.save(Mockito.any())).then(inv -> {
@@ -43,7 +46,9 @@ public class RegistrationServiceTest {
             return null;
         });
 
-        service.registerUser(registrationFormDTO);
+        registrationService.registerUser(registrationFormDTO);
     }
+
+    //todo add test with wrong email address format
 
 }

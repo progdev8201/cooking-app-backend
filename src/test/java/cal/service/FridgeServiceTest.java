@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
@@ -24,16 +25,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
+@Import({FridgeService.class,RecipeService.class})
 public class FridgeServiceTest {
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private FridgeService fridgeService;
+
     @Test
     public void findTest(){
         //ARRANGE
         User user = userRepository.save(setUpUser());
-        FridgeService fridgeService = new FridgeService(userRepository);
 
         Fridge fridgeToFind = user.getFridge();
 
@@ -48,7 +52,6 @@ public class FridgeServiceTest {
     public void updateByAddingMissingArticle(){
         //ARRANGE
         User user = userRepository.save(setUpUser());
-        FridgeService fridgeService = new FridgeService(userRepository);
 
         Fridge fridgeToUpdate = user.getFridge();
 
@@ -64,7 +67,6 @@ public class FridgeServiceTest {
     public void findAllCookable(){
         //ARRANGE
         User user = userRepository.save(setUpUser());
-        FridgeService fridgeService = new FridgeService(userRepository);
 
         //add routine article for a recipe into the fridge
         Recipe recipeToFindCookable = user.getRecipes().get(0);

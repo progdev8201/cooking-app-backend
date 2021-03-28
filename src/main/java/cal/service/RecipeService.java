@@ -4,7 +4,10 @@ import cal.model.dto.RecipeDTO;
 import cal.model.dto.UserDTO;
 import cal.model.entity.Recipe;
 import cal.model.entity.User;
+import cal.repository.ImageRepository;
 import cal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -21,12 +24,16 @@ import java.util.logging.Logger;
 @Validated
 public class RecipeService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private  UserRepository userRepository;
+
+    @Lazy
+    @Autowired
+    private  ImageService imageService;
+
     private final Logger LOGGER = Logger.getLogger(RecipeService.class.getName());
 
-    public RecipeService(final UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
+    // SERVICES
 
     public RecipeDTO create(@Valid RecipeDTO recipeDTO,@NotNull UUID userId){
         Optional<User> user = userRepository.findById(userId);
@@ -73,10 +80,13 @@ public class RecipeService {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u ->{
-            Optional<Recipe> recipeToUpdate = u.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeId)).findFirst();
+            // delete recipe in user recipe list
+            Optional<Recipe> recipeToDelete = u.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeId)).findFirst();
 
-            recipeToUpdate.ifPresent(recipe -> {
+            recipeToDelete.ifPresent(recipe -> {
+                // should remove recipe everywhere
                 u.getRecipes().remove(recipe);
+
                 userRepository.save(u);
                 LOGGER.info("RECIPE DELETED WITH SUCCESS");
             });

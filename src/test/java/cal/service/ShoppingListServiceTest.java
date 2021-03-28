@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
-@Import(ShoppingListService.class)
+@Import({ShoppingListService.class,ArticleService.class})
 public class ShoppingListServiceTest {
 
     @Autowired

@@ -7,6 +7,7 @@ import cal.model.entity.RoutineArticle;
 import cal.model.entity.Transaction;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -21,17 +22,15 @@ import java.util.logging.Logger;
 @Service
 public class ShoppingListService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final ArticleService articleService;
+    @Autowired
+    private ArticleService articleService;
 
     private final Logger LOGGER = Logger.getLogger(ShoppingListService.class.getName());
 
-
-    public ShoppingListService(final UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.articleService = new ArticleService(userRepository);
-    }
+    // SERVICES
 
     public List<RoutineArticle> addArticlesInShoppingList(@NotNull UUID userId, @NotNull List<RoutineArticleDTO> articlesToAdd) {
         Optional<User> user = userRepository.findById(userId);
@@ -104,11 +103,13 @@ public class ShoppingListService {
                 if (routineArticleToShop.isPresent()) {
                     u.getShoppingList().remove(routineArticleToShop.get());
 
-                    Article updatedArticle = addTransactionAndUpdate(u, routineArticleToShop.get().getArticle().getId(), routineArticle.getQuantity());
+                    Optional<Article> updatedArticle = addTransactionAndUpdate(u, routineArticleToShop.get().getArticle().getId(), routineArticle.getQuantity());
 
-                    routineArticle.setArticle(new ArticleDTO(updatedArticle));
+                    updatedArticle.ifPresent(article -> {
+                        routineArticle.setArticle(new ArticleDTO(article));
 
-                    u.getFridge().getAvailableArticles().add(new RoutineArticle(routineArticle));
+                        u.getFridge().getAvailableArticles().add(new RoutineArticle(routineArticle));
+                    });
                 }
 
             });
@@ -119,7 +120,9 @@ public class ShoppingListService {
         });
     }
 
-    private Article addTransactionAndUpdate(User user, @NotNull UUID articleId, @NotNull int qty) {
+    // PRIVATE METHODS
+
+    private Optional<Article> addTransactionAndUpdate(User user, @NotNull UUID articleId, @NotNull int qty) {
         Optional<Article> articleToEdit = user.getArticles().stream().filter(article1 -> article1.getId().equals(articleId)).findFirst();
 
         if (articleToEdit.isPresent()) {
@@ -132,9 +135,8 @@ public class ShoppingListService {
 
             articleService.updateAllOccurences(new ArticleDTO(articleToEdit.get()), user);
 
-            return articleToEdit.get();
         }
 
-        return null;
+        return articleToEdit;
     }
 }

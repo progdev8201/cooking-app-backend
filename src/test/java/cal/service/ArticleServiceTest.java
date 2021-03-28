@@ -9,7 +9,6 @@ import cal.model.enums.ArticleCategorie;
 import cal.model.enums.ArticleType;
 import cal.repository.UserRepository;
 import cal.utility.EntityGenerator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
