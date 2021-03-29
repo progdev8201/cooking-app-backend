@@ -9,6 +9,7 @@ import cal.model.enums.ArticleType;
 import cal.model.enums.RecipeType;
 import cal.model.enums.UnitMeasurement;
 import cal.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static cal.utility.EntityGenerator.setUpUserWithLogic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -39,11 +41,16 @@ public class ImageServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    private User user;
+
+    @BeforeEach
+    public void beforeEach(){
+        user = userRepository.save(setUpUserWithLogic());
+    }
+
     @Test
     public void uploadAndDownloadImage_withArticle() throws IOException {
         //ARRANGE
-        User user = userRepository.save(setUpUser());
-
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
 
         //ACT
@@ -60,8 +67,6 @@ public class ImageServiceTest {
     @Test
     public void uploadAndDownloadImage_withRecipe() throws IOException {
         //ARRANGE
-        User user = userRepository.save(setUpUser());
-
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
 
         //ACT
@@ -78,8 +83,8 @@ public class ImageServiceTest {
     @Test
     public void uploadAndDownloadImage_withRecipe_withBadUUIDFormat() throws IOException {
         //ARRANGE
-        User user = setUpUser();
         user.getRecipes().get(0).setImage("unvalid uuid");
+
         user = userRepository.save(user);
 
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
@@ -98,8 +103,8 @@ public class ImageServiceTest {
     @Test
     public void uploadAndDownloadImage_withRecipe_withNullReturned() throws IOException {
         //ARRANGE
-        User user = setUpUser();
-        user.getRecipes().get(0).setImage("unvalid uuid");
+        user.getRecipes().get(0).setImage("invalid uuid");
+
         user = userRepository.save(user);
 
         MockMultipartFile file = new MockMultipartFile("file", "img.png", "multipart/form-data", "salut".getBytes());
@@ -115,24 +120,6 @@ public class ImageServiceTest {
 
         //ASSERT
         assertNull(fileByte);
-    }
-
-
-    private User setUpUser() {
-        // set up user
-        User user = new User(UUID.randomUUID(), "test2@mail.com", "test", "test", "test", "test");
-        List<RecipeArticle> recipeArticles = new ArrayList<>();
-
-        // set up user article dto list
-        for (int i = 0; i < 10; i++) {
-            Article article = new Article(UUID.randomUUID(), "test", "test", 5.99f, UUID.randomUUID().toString(), ArticleType.LIQUID, ArticleCategorie.DAIRIES);
-            user.getArticles().add(article);
-            recipeArticles.add(new RecipeArticle(UUID.randomUUID(), article, "5g", UnitMeasurement.CUP));
-        }
-
-        user.getRecipes().add(new Recipe(UUID.randomUUID(), "spaghetti", recipeArticles, UUID.randomUUID().toString(), "", "", RecipeType.BREAKFAST, 5));
-
-        return user;
     }
 
 }

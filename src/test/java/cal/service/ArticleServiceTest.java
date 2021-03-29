@@ -3,22 +3,21 @@ package cal.service;
 import cal.model.dto.ArticleDTO;
 import cal.model.entity.*;
 import cal.model.enums.ArticleCategorie;
-import cal.model.enums.ArticleType;
 import cal.repository.UserRepository;
-import cal.utility.EntityGenerator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static cal.utility.EntityGenerator.setUpUserWithLogic;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,10 +32,16 @@ public class ArticleServiceTest {
     @InjectMocks
     private ArticleService articleService;
 
+    private User user;
+
+    @BeforeEach
+    public void beforeEach(){
+        user = setUpUserWithLogic();
+    }
+
     @Test
     public void createArticleTest() {
         //ARRANGE
-        User user = setUpUser();
         int articleIndex = 0;
         ArticleDTO articleDTO = new ArticleDTO(user.getArticles().get(articleIndex));
 
@@ -59,7 +64,6 @@ public class ArticleServiceTest {
     @Test
     public void findAllTest() {
         //ARRANGE
-        User user = setUpUser();
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
         //ACT
@@ -77,8 +81,8 @@ public class ArticleServiceTest {
     @Test
     public void findTest() {
         //ARRANGE
-        User user = setUpUser();
         int articleIndex = 0;
+
         Article article = user.getArticles().get(articleIndex);
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
@@ -93,8 +97,6 @@ public class ArticleServiceTest {
     @Test
     public void updateTest() {
         //ARRANGE
-        User user = setUpUser();
-
         int articleIndex = 0;
 
         ArticleDTO article = new ArticleDTO(user.getArticles().get(articleIndex));
@@ -115,8 +117,6 @@ public class ArticleServiceTest {
     @Test
     public void deleteArticleTest() {
         //ARRANGE
-        User user = setUpUser();
-
         final int articleIndex = 0;
 
         Article article = user.getArticles().get(articleIndex);
@@ -134,7 +134,7 @@ public class ArticleServiceTest {
     @Test
     public void findAllOccurencesTest() {
         // Arrange
-        User user = EntityGenerator.setUpUserWithLogic();
+        User user = setUpUserWithLogic();
 
         final int occurenceAmount = 6;
 
@@ -155,7 +155,7 @@ public class ArticleServiceTest {
     public void deleteAllOccurencesTest() {
         // Arrange
 
-        User user = EntityGenerator.setUpUserWithLogic();
+        User user = setUpUserWithLogic();
 
         Article articleToDelete = user.getArticles().get(0);
 
@@ -184,7 +184,7 @@ public class ArticleServiceTest {
     public void updateAllOccurencesTest() {
         // Arrange
 
-        User user = EntityGenerator.setUpUserWithLogic();
+        User user = setUpUserWithLogic();
 
         final ArticleDTO articleToUpdateDto = new ArticleDTO(user.getArticles().get(0));
 
@@ -250,15 +250,4 @@ public class ArticleServiceTest {
         assertEquals(articleDTO.getTransactions().stream().map(Transaction::new).collect(Collectors.toList()), article.getTransactions());
     }
 
-    private User setUpUser() {
-        // set up user
-        User user = new User(UUID.randomUUID(), "test2@mail.com", "test", "test", "test", "test");
-
-        // set up user article dto list
-        for (int i = 0; i < 10; i++) {
-            user.getArticles().add(new Article(UUID.randomUUID(), "test", "test", 5.99f, "test", ArticleType.LIQUID, ArticleCategorie.DAIRIES));
-        }
-
-        return user;
-    }
 }

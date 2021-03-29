@@ -5,9 +5,8 @@ import cal.model.dto.RecipeDTO;
 import cal.model.entity.*;
 import cal.model.enums.ArticleCategorie;
 import cal.model.enums.ArticleType;
-import cal.model.enums.RecipeType;
-import cal.model.enums.UnitMeasurement;
 import cal.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static cal.utility.EntityGenerator.setUpUserWithLogic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
@@ -34,11 +34,16 @@ public class FridgeServiceTest {
     @Autowired
     private FridgeService fridgeService;
 
+    private User user;
+
+    @BeforeEach
+    public void beforeEach(){
+        user = userRepository.save(setUpUserWithLogic());
+    }
+
     @Test
     public void findTest(){
         //ARRANGE
-        User user = userRepository.save(setUpUser());
-
         Fridge fridgeToFind = user.getFridge();
 
         //ACT
@@ -51,8 +56,6 @@ public class FridgeServiceTest {
     @Test
     public void updateByAddingMissingArticle(){
         //ARRANGE
-        User user = userRepository.save(setUpUser());
-
         Fridge fridgeToUpdate = user.getFridge();
 
         //ACT
@@ -66,14 +69,11 @@ public class FridgeServiceTest {
     @Test
     public void findAllCookable(){
         //ARRANGE
-        User user = userRepository.save(setUpUser());
-
         //add routine article for a recipe into the fridge
         Recipe recipeToFindCookable = user.getRecipes().get(0);
 
         List<RoutineArticle> newFridgeRoutineArticle = new ArrayList<>();
         recipeToFindCookable.getRecipeArticles().stream().forEach(recipeArticle -> newFridgeRoutineArticle.add(new RoutineArticle(UUID.randomUUID(),recipeArticle.getArticle(),5)));
-
 
         user.getFridge().setAvailableArticles(newFridgeRoutineArticle);
         user = userRepository.save(user);
@@ -85,24 +85,4 @@ public class FridgeServiceTest {
         assertEquals(new Recipe(cookableRecipes.get(0)),recipeToFindCookable);
     }
 
-    private User setUpUser() {
-        // set up user
-        User user = new User(UUID.randomUUID(), "test2@mail.com", "test", "test", "test", "test");
-
-        //set up une recipe list et un shopping list et une liste darticle
-        for (int i = 0; i < 10; i++) {
-            List<RecipeArticle> recipeArticles = new ArrayList<>();
-
-            for (int j = 0; j < 10; j++) {
-                Article article = new Article(UUID.randomUUID(), "test", "test", 5.99f, "test", ArticleType.LIQUID, ArticleCategorie.DAIRIES);
-                recipeArticles.add(new RecipeArticle(UUID.randomUUID(),article,"5g", UnitMeasurement.CUP));
-                user.getArticles().add(article);
-                user.getShoppingList().add(new RoutineArticle(UUID.randomUUID(), article, 5));
-            }
-
-            user.getRecipes().add(new Recipe(UUID.randomUUID(),"spaghetti",recipeArticles,"","","", RecipeType.BREAKFAST,5));
-        }
-
-        return user;
-    }
-}
+   }

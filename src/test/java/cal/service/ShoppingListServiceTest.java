@@ -2,13 +2,11 @@ package cal.service;
 
 
 import cal.model.dto.RoutineArticleDTO;
-import cal.model.entity.Article;
 import cal.model.entity.RoutineArticle;
 import cal.model.entity.User;
-import cal.model.enums.ArticleCategorie;
-import cal.model.enums.ArticleType;
 import cal.repository.UserRepository;
 import cal.utility.EntityGenerator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +14,12 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static cal.utility.EntityGenerator.setUpUserWithLogic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
@@ -34,11 +32,16 @@ public class ShoppingListServiceTest {
     @Autowired
     private ShoppingListService shoppingListService;
 
+    private User user;
+
+    @BeforeEach
+    public void beforeEach(){
+        user = userRepository.save(setUpUserWithLogic());
+    }
+
     @Test
     public void addArticlesInShoppingListTest_sameArticlesCase(){
         // Arrange
-        User user = userRepository.save(setUpUserWithLogic());
-
         final int articleAmountToAdd = 4;
 
         List<RoutineArticleDTO> routineArticles = user.getShoppingList().subList(0,articleAmountToAdd)
@@ -65,8 +68,6 @@ public class ShoppingListServiceTest {
     @Test
     public void addArticlesInShoppingListTest_differentArticlesCase(){
         // Arrange
-        User user = userRepository.save(setUpUserWithLogic());
-
         final int shoppingListInitialSize = user.getShoppingList().size();
         final int articleAmountToDelete = 2;
         final int expectedShoppingListFinalSize = shoppingListInitialSize - articleAmountToDelete;
@@ -86,8 +87,6 @@ public class ShoppingListServiceTest {
     @Test
     public void deleteArticlesInShoppingListTest(){
         // Arrange
-        User user = userRepository.save(setUpUserWithLogic());
-
         final int shoppingListInitialiSize = user.getShoppingList().size();
         final int articleAmountToAdd = 2;
         final int expectedShoppingListFinalSize = shoppingListInitialiSize + articleAmountToAdd;
@@ -107,7 +106,6 @@ public class ShoppingListServiceTest {
     @Test
     public void findTest() {
         // Arrange
-        User user = userRepository.save(setUpUserWithLogic());
 
         // Act
         List<RoutineArticle> userShoppingListFromService = shoppingListService.find(user.getUniqueId());
@@ -119,9 +117,6 @@ public class ShoppingListServiceTest {
     @Test
     public void shopTest() {
         // Arrange
-        //shop routine then make sure routine is empty
-        User user = userRepository.save(setUpUserWithLogic());
-
         List<RoutineArticleDTO> shoppingList = user.getShoppingList().subList(0,5)
                 .stream()
                 .map(RoutineArticleDTO::new)
