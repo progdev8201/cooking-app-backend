@@ -1,10 +1,11 @@
 package cal.model.dto;
 
-import cal.model.entity.*;
+import cal.model.entity.User;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
@@ -19,6 +20,7 @@ public class UserDTO implements Serializable {
     private List<ArticleDTO> articles;
     private List<RoutineDTO> routines;
     private List<RoutineArticleDTO> shoppingList;
+    private List<RecipeToCookDTO> cookingList;
     private FridgeDTO frigo;
 
     public UserDTO(User user) {
@@ -38,5 +40,7 @@ public class UserDTO implements Serializable {
         routines = user.getRoutines().stream().map(RoutineDTO::new).collect(Collectors.toList());
 
         shoppingList = user.getShoppingList().stream().map(RoutineArticleDTO::new).collect(Collectors.toList());
+
+        cookingList = user.getCookingList().stream().map(RecipeToCookDTO::new).collect(Collectors.toList());
     }
 }

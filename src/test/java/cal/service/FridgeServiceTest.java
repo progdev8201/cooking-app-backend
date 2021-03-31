@@ -43,32 +43,32 @@ public class FridgeServiceTest {
 
     @Test
     public void findTest(){
-        //ARRANGE
+        // Arrange
         Fridge fridgeToFind = user.getFridge();
 
-        //ACT
+        // Act
         FridgeDTO foundFridge = fridgeService.find(user.getUniqueId());
 
-        //ASSERT
+        // Assert
         assertEquals(fridgeToFind,new Fridge(foundFridge));
     }
 
     @Test
     public void updateByAddingMissingArticle(){
-        //ARRANGE
+        // Arrange
         Fridge fridgeToUpdate = user.getFridge();
 
-        //ACT
+        // Act
         fridgeToUpdate.setMissingArticles(Arrays.asList(new RoutineArticle(UUID.randomUUID(),new Article(UUID.randomUUID(),"","",5.88f,"",ArticleType.LIQUID,ArticleCategorie.DAIRIES),5)).stream().collect(Collectors.toList()));
         FridgeDTO foundFridge = fridgeService.update(user.getUniqueId(),new FridgeDTO(fridgeToUpdate));
 
-        //ASSERT
+        // Assert
         assertEquals(fridgeToUpdate,new Fridge(foundFridge));
     }
 
     @Test
     public void findAllCookable(){
-        //ARRANGE
+        // Arrange
         //add routine article for a recipe into the fridge
         Recipe recipeToFindCookable = user.getRecipes().get(0);
 
@@ -78,10 +78,10 @@ public class FridgeServiceTest {
         user.getFridge().setAvailableArticles(newFridgeRoutineArticle);
         user = userRepository.save(user);
 
-        //ACT
+        // Act
         List<RecipeDTO> cookableRecipes = fridgeService.findAllCookable(user.getUniqueId());
 
-        //ASSERT
+        // Assert
         assertEquals(new Recipe(cookableRecipes.get(0)),recipeToFindCookable);
     }
 

@@ -6,6 +6,7 @@ import cal.model.enums.ArticleType;
 import cal.model.enums.RecipeType;
 import cal.model.enums.UnitMeasurement;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,10 +60,14 @@ public class EntityGenerator {
         // create a shopping list
         List<RoutineArticle> shoppingList = new ArrayList<>(routineArticlesPart1);
 
+        // create a cooking list
+        List<RecipeToCook> cookingList = new ArrayList<>(Arrays.asList(new RecipeToCook(UUID.randomUUID(),recipe, LocalDate.now()) ,new RecipeToCook(UUID.randomUUID(),recipe2, LocalDate.now())));
+
         user.setRecipes(Arrays.asList(recipe,recipe2));
         user.setRoutines(Arrays.asList(routine,routine2));
         user.setFridge(fridge);
         user.setShoppingList(shoppingList);
+        user.setCookingList(cookingList);
 
         return user;
     }

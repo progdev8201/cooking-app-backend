@@ -1,6 +1,5 @@
 package cal.model.entity;
 
-import cal.model.dto.RoutineArticleDTO;
 import cal.model.dto.UserDTO;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -25,6 +24,7 @@ public class User implements Serializable {
     private List<Article> articles;
     private List<Routine> routines;
     private List<RoutineArticle> shoppingList;
+    private List<RecipeToCook> cookingList;
     private Fridge fridge;
 
     public User(UUID uniqueId, String email, String password, String firstName, String lastName, String role) {
@@ -38,6 +38,7 @@ public class User implements Serializable {
         articles = new ArrayList<>();
         routines = new ArrayList<>();
         shoppingList = new ArrayList<>();
+        cookingList = new ArrayList<>();
         fridge = new Fridge();
     }
 
@@ -58,6 +59,8 @@ public class User implements Serializable {
         routines = userDTO.getRoutines().stream().map(Routine::new).collect(Collectors.toList());
 
         shoppingList = userDTO.getShoppingList().stream().map(RoutineArticle::new).collect(Collectors.toList());
+
+        cookingList = userDTO.getCookingList().stream().map(RecipeToCook::new).collect(Collectors.toList());
     }
 
     public User() {
