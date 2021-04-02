@@ -2,6 +2,7 @@ package cal.service;
 
 import cal.model.dto.RecipeDTO;
 import cal.model.entity.Recipe;
+import cal.model.entity.RecipeToCook;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static cal.utility.EntityGenerator.setUpUserWithLogic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,12 +35,27 @@ public class CookingListServiceTest {
     private User user;
 
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() {
         user = userRepository.save(setUpUserWithLogic());
     }
 
     @Test
-    public void addRecipesToListTest(){
+    public void findAll() {
+        // Arrange
+
+        // Act
+        List<RecipeToCook> recipesToCook = cookingListService.findAll(user.getUniqueId())
+                .stream()
+                .map(RecipeToCook::new)
+                .collect(Collectors.toList());
+
+        // Assert
+        assertEquals(recipesToCook,user.getCookingList());
+
+    }
+
+    @Test
+    public void addRecipesToListTest() {
         // Arrange
         final int initialSize = user.getCookingList().size();
 
@@ -52,10 +70,10 @@ public class CookingListServiceTest {
 
         // Assert
         assertEquals(finalSize, user.getCookingList().size());
-        assertEquals(new Recipe(recipeToAdd),user.getCookingList().get(finalSize - 1).getRecipe());
+        assertEquals(new Recipe(recipeToAdd), user.getCookingList().get(finalSize - 1).getRecipe());
     }
 
-    public void updateCookDayTest(){
+    public void updateCookDayTest() {
         // Arrange
 
         // Act
@@ -63,7 +81,7 @@ public class CookingListServiceTest {
         // Assert
     }
 
-    public void deleteRecipesTest(){
+    public void deleteRecipesTest() {
         // Arrange
 
         // Act
