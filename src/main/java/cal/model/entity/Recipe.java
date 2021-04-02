@@ -5,7 +5,6 @@ import cal.model.enums.RecipeType;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,7 +42,7 @@ public class Recipe implements Serializable {
         cookingTransactions = recipeDTO.getCookingTransactions().stream().map(CookingTransaction::new).collect(Collectors.toList());
     }
 
-    public Recipe(UUID id, String name, List<RecipeArticle> recipeArticles, String image, String country, String description, RecipeType recipeType,int time) {
+    public Recipe(UUID id, String name, List<RecipeArticle> recipeArticles, String image, String country, String description, RecipeType recipeType, int time, List<CookingTransaction> cookingTransactions) {
         this.id = id;
         this.recipeArticles = recipeArticles;
         this.image = image;
@@ -52,5 +51,6 @@ public class Recipe implements Serializable {
         this.recipeType = recipeType;
         this.name = name;
         this.time = time;
+        this.cookingTransactions = cookingTransactions;
     }
 }

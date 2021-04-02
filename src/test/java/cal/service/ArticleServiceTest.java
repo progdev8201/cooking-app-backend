@@ -134,8 +134,6 @@ public class ArticleServiceTest {
     @Test
     public void findAllOccurencesTest() {
         // Arrange
-        User user = setUpUserWithLogic();
-
         final int occurenceAmount = 6;
 
         Article articleToFind = user.getArticles().get(0);
@@ -154,9 +152,6 @@ public class ArticleServiceTest {
     @Test
     public void deleteAllOccurencesTest() {
         // Arrange
-
-        User user = setUpUserWithLogic();
-
         Article articleToDelete = user.getArticles().get(0);
 
         user.getFridge().getAvailableArticles().add(new RoutineArticle(UUID.randomUUID(), articleToDelete, 5));
@@ -183,16 +178,13 @@ public class ArticleServiceTest {
     @Test
     public void updateAllOccurencesTest() {
         // Arrange
-
-        User user = setUpUserWithLogic();
-
         final ArticleDTO articleToUpdateDto = new ArticleDTO(user.getArticles().get(0));
 
         user.getFridge().getAvailableArticles().add(new RoutineArticle(UUID.randomUUID(), new Article(articleToUpdateDto), 5));
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 
-        articleToUpdateDto.setArticleCategorie(ArticleCategorie.CEREAL);
+        articleToUpdateDto.setArticleCategorie(ArticleCategorie.DAIRIES);
 
         // Act
         ArticleDTO articleDTO = articleService.update(articleToUpdateDto, user.getUniqueId());

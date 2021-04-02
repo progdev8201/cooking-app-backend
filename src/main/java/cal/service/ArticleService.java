@@ -140,8 +140,7 @@ public class ArticleService {
         Optional<RoutineArticle> missingRoutineArticleToUpdate = u.getFridge().getMissingArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
         missingRoutineArticleToUpdate.ifPresent(routineArticle -> {
-            final int routineArticleIndex = u.getFridge().getMissingArticles().indexOf(routineArticle);
-            u.getFridge().getMissingArticles().get(routineArticleIndex).setArticle(new Article(articleDTO));
+            routineArticle.setArticle(new Article(articleDTO));
             LOGGER.info("ARTICLE UPDATED IN FRIDGE MISSING ARTICLES");
         });
     }
@@ -150,8 +149,7 @@ public class ArticleService {
         Optional<RoutineArticle> availableRoutineArticleToUpdate = u.getFridge().getAvailableArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
         availableRoutineArticleToUpdate.ifPresent(routineArticle -> {
-            final int routineArticleIndex = u.getFridge().getAvailableArticles().indexOf(routineArticle);
-            u.getFridge().getAvailableArticles().get(routineArticleIndex).setArticle(new Article(articleDTO));
+            routineArticle.setArticle(new Article(articleDTO));
             LOGGER.info("ARTICLE UPDATED IN FRIDGE AVAILABLE ARTICLES");
         });
     }
@@ -161,7 +159,7 @@ public class ArticleService {
             Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
             recipeArticleToUpdate.ifPresent(recipeArticle -> {
-                recipe.getRecipeArticles().get(recipe.getRecipeArticles().indexOf(recipeArticle)).setArticle(new Article(articleDTO));
+                recipeArticle.setArticle(new Article(articleDTO));
                 LOGGER.info("ARTICLE UPDATED IN FRIDGE AVAILABLE RECIPE");
             });
         });
@@ -172,7 +170,7 @@ public class ArticleService {
             Optional<RecipeArticle> recipeArticleToUpdate = recipe.getRecipeArticles().stream().filter(recipeArticle -> recipeArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
             recipeArticleToUpdate.ifPresent(recipeArticle -> {
-                recipe.getRecipeArticles().get(recipe.getRecipeArticles().indexOf(recipeArticle)).setArticle(new Article(articleDTO));
+                recipeArticle.setArticle(new Article(articleDTO));
                 LOGGER.info("ARTICLE UPDATED IN RECIPE");
             });
         });
@@ -182,7 +180,7 @@ public class ArticleService {
         Optional<RoutineArticle> routineArticleToUpdate = u.getShoppingList().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
         routineArticleToUpdate.ifPresent(routineArticle -> {
-            u.getShoppingList().get(u.getShoppingList().indexOf(routineArticle)).setArticle(new Article(articleDTO));
+            routineArticle.setArticle(new Article(articleDTO));
             LOGGER.info("ARTICLE UPDATED IN SHOPPING LIST");
         });
     }
@@ -192,7 +190,7 @@ public class ArticleService {
             Optional<RoutineArticle> routineArticleToUpdate = routine.getRoutineArticles().stream().filter(routineArticle -> routineArticle.getArticle().getId().equals(articleDTO.getId())).findFirst();
 
             routineArticleToUpdate.ifPresent(routineArticle -> {
-                routine.getRoutineArticles().get(routine.getRoutineArticles().indexOf(routineArticle)).setArticle(new Article(articleDTO));
+                routineArticle.setArticle(new Article(articleDTO));
                 LOGGER.info("ARTICLE UPDATED IN ROUTINE");
             });
         });

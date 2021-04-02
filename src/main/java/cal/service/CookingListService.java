@@ -49,6 +49,7 @@ public class CookingListService {
         });
     }
 
+    // todo clean code
     public RecipeToCookDTO updateCookDay(UUID userId, LocalDate cookDate, UUID recipeToCookId) {
         Optional<User> user = userRepository.findById(userId);
 
@@ -67,12 +68,7 @@ public class CookingListService {
 
                 recipeToCookToUpdate = recipeToCookToUpdateOpt.get();
 
-                int indexToModify = u.getCookingList().indexOf(recipeToCookToUpdate);
-
-                // todo debug to see if the recipe to cook is updated in the list without the set
                 recipeToCookToUpdate.setCookDate(cookDate);
-
-                u.getCookingList().set(indexToModify, recipeToCookToUpdate);
 
                 userRepository.save(u);
 
@@ -84,6 +80,7 @@ public class CookingListService {
         return recipeToCookToUpdate == null ? null : new RecipeToCookDTO(recipeToCookToUpdate);
     }
 
+    //todo clean code
     public void cookRecipe(UUID userId, UUID recipeToCookId){
         Optional<User> user = userRepository.findById(userId);
 
@@ -108,12 +105,8 @@ public class CookingListService {
                             .findFirst();
 
                     recipeToAddTransaction.ifPresent(recipe -> {
-                        // update recipe in user list
-                        final int indexToUpdate = u.getRecipes().indexOf(recipe);
-                        // todo essayer de voir si lobjet est modifier dans la liste sans me le set index
-                        recipe.getCookingTransactions().add(new CookingTransaction(UUID.randomUUID(),LocalDate.now()));
 
-                        u.getRecipes().set(indexToUpdate,recipe);
+                        recipe.getCookingTransactions().add(new CookingTransaction(UUID.randomUUID(),LocalDate.now()));
 
                         LOGGER.info("TRANSACTION ADDED TO RECIPE WITH ID: " + recipe.getId());
 
