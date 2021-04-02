@@ -67,6 +67,7 @@ public class RecipeService {
             Optional<Recipe> recipeToUpdate = u.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeDTO.getId())).findFirst();
 
             recipeToUpdate.ifPresent(recipe -> {
+                // todo when adding mapping method no need to index of
                 u.getRecipes().set(u.getRecipes().indexOf(recipe),new Recipe(recipeDTO));
                 userRepository.save(u);
                 LOGGER.info("RECIPE UPDATED WITH SUCCESS");

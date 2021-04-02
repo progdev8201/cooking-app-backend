@@ -81,42 +81,38 @@ public class CookingListService {
     }
 
     //todo clean code
-    public void cookRecipe(UUID userId, UUID recipeToCookId){
+    public void cookRecipe(UUID userId, UUID recipeToCookId) {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u -> {
-            List<RecipeToCook> recipeList = u.getCookingList();
 
-            recipeList.forEach(recipeToCookDTOId -> {
+            Optional<RecipeToCook> recipeToCookToDelete = u.getCookingList()
+                    .stream()
+                    .filter(recipeToCook -> recipeToCook.getId().equals(recipeToCookId))
+                    .findFirst();
 
-                Optional<RecipeToCook> recipeToCookToDelete = u.getCookingList()
+            if (recipeToCookToDelete.isPresent()) {
+
+                RecipeToCook r = recipeToCookToDelete.get();
+
+                // before deleting take user recipe and update transaction
+                Optional<Recipe> recipeToAddTransaction = u.getRecipes()
                         .stream()
-                        .filter(recipeToCook -> recipeToCook.getId().equals(recipeToCookDTOId))
+                        .filter(recipe -> recipe.getId().equals(r.getRecipe().getId()))
                         .findFirst();
 
-                if (recipeToCookToDelete.isPresent()) {
+                recipeToAddTransaction.ifPresent(recipe -> {
 
-                    RecipeToCook r = recipeToCookToDelete.get();
+                    recipe.getCookingTransactions().add(new CookingTransaction(UUID.randomUUID(), LocalDate.now()));
 
-                    // before deleting take user recipe and update transaction
-                    Optional<Recipe> recipeToAddTransaction = u.getRecipes()
-                            .stream()
-                            .filter(recipe -> recipe.getId().equals(r.getRecipe().getId()))
-                            .findFirst();
+                    LOGGER.info("TRANSACTION ADDED TO RECIPE WITH ID: " + recipe.getId());
 
-                    recipeToAddTransaction.ifPresent(recipe -> {
+                });
 
-                        recipe.getCookingTransactions().add(new CookingTransaction(UUID.randomUUID(),LocalDate.now()));
+                u.getCookingList().remove(r);
 
-                        LOGGER.info("TRANSACTION ADDED TO RECIPE WITH ID: " + recipe.getId());
-
-                    });
-
-                    u.getCookingList().remove(r);
-
-                    LOGGER.info("RECIPE TO COOK WITH ID: " + r.getId() + "WAS DELETED");
-                }
-            });
+                LOGGER.info("RECIPE TO COOK WITH ID: " + r.getId() + "WAS DELETED");
+            }
 
             userRepository.save(u);
 

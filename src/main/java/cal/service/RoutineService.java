@@ -68,6 +68,7 @@ public class RoutineService {
             Optional<Routine> routineToUpdate = u.getRoutines().stream().filter(routine -> routine.getId().equals(routineDTO.getId())).findFirst();
 
             routineToUpdate.ifPresent(routine -> {
+                //todo when adding the mapping method no need to look for index
                 int index = u.getRoutines().indexOf(routine);
                 u.getRoutines().set(index, new Routine(routineDTO));
                 userRepository.save(u);

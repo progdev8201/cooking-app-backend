@@ -96,6 +96,7 @@ public class CookingListServiceTest {
 
         // Assert
         assertNotEquals(recipeToCookToUpdate.getCookDate(),recipeToCookUpdated.getCookDate());
+        assertEquals(timeToAdd,recipeToCookUpdated.getCookDate());
         assertEquals(recipeToCookToUpdate.getRecipe(),recipeToCookUpdated.getRecipe());
         assertEquals(recipeToCookToUpdate.getId(),recipeToCookUpdated.getId());
     }
@@ -121,11 +122,28 @@ public class CookingListServiceTest {
         assertNull(expectedNullRecipe);
     }
 
+    @Test
     public void cookRecipe() {
         // Arrange
+        final int recipeToCookIndex = 0;
+        final int cookingListSize = user.getCookingList().size();
+        final int expectedCookingSize = cookingListSize - 1;
+
+        final RecipeToCook recipeToDelete = user.getCookingList().get(recipeToCookIndex);
 
         // Act
+        cookingListService.cookRecipe(user.getUniqueId(),recipeToDelete.getId());
+
+        user = userRepository.findById(user.getUniqueId()).get();
+
+        final RecipeToCook expectedNullRecipe = user.getCookingList().stream().filter(recipeToCook -> recipeToCook.getId().equals(recipeToDelete.getId())).findFirst().orElse(null);
+
+        // find recipe that we deleted and check transaction
+        final Recipe recipeThatHaveTransaction = user.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeToDelete.getRecipe().getId())).findFirst().get();
 
         // Assert
+        assertEquals(expectedCookingSize, user.getCookingList().size());
+        assertNull(expectedNullRecipe);
+        assertEquals(LocalDate.now(),recipeThatHaveTransaction.getCookingTransactions().get(0).getCookDate());
     }
 }

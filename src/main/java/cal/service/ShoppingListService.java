@@ -45,11 +45,10 @@ public class ShoppingListService {
                         .findFirst();
 
                 if (alreadyExistingRoutineArticle.isPresent()) {
-                    final int routineArticleIndex = u.getShoppingList().indexOf(alreadyExistingRoutineArticle.get());
-
                     final int quantityToAdd = alreadyExistingRoutineArticle.get().getQuantity() + routineArticle.getQuantity();
 
-                    u.getShoppingList().get(routineArticleIndex).setQuantity(quantityToAdd);
+                    alreadyExistingRoutineArticle.get().setQuantity(quantityToAdd);
+
                 } else {
                     u.getShoppingList().add(new RoutineArticle(routineArticle));
                 }
