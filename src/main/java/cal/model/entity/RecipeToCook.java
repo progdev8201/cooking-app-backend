@@ -1,23 +1,23 @@
 package cal.model.entity;
 
-import cal.model.dto.RecipeDTO;
 import cal.model.dto.RecipeToCookDTO;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
-public class RecipeToCook {
+public class RecipeToCook implements Serializable {
     private UUID id;
     private Recipe recipe;
     private LocalDate cookDate;
 
-    public RecipeToCook(){
+    public RecipeToCook() {
 
     }
 
-    public RecipeToCook(RecipeToCookDTO recipeToCookDTO){
+    public RecipeToCook(RecipeToCookDTO recipeToCookDTO) {
         id = recipeToCookDTO.getId() == null ? UUID.randomUUID() : recipeToCookDTO.getId();
         cookDate = recipeToCookDTO.getCookDate();
         recipe = new Recipe(recipeToCookDTO.getRecipe());

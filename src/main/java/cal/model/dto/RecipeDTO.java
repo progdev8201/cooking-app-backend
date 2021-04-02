@@ -7,34 +7,27 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 public class RecipeDTO implements Serializable {
     private UUID id;
-
     @NotBlank
     private String name;
-
     @NotNull
     private List<RecipeArticleDTO> recipeArticles;
-
     private String image;
-
     private String country;
-
     private String description;
-
     private int time;
-
     @NotNull
     private RecipeType recipeType;
-
     private List<String> instructions;
+    private List<CookingTransactionDTO> cookingTransactions;
 
-    public RecipeDTO(){
+    public RecipeDTO() {
 
     }
 
@@ -47,10 +40,10 @@ public class RecipeDTO implements Serializable {
         recipeType = recipe.getRecipeType();
         instructions = recipe.getInstructions();
         time = recipe.getTime();
-        recipeArticles = new ArrayList<>();
 
         //map recipe articles
 
-        recipe.getRecipeArticles().stream().forEach(recipeArticle -> recipeArticles.add(new RecipeArticleDTO(recipeArticle)));
+        recipeArticles = recipe.getRecipeArticles().stream().map(RecipeArticleDTO::new).collect(Collectors.toList());
+        cookingTransactions = recipe.getCookingTransactions().stream().map(CookingTransactionDTO::new).collect(Collectors.toList());
     }
 }

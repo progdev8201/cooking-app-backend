@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 public class Recipe implements Serializable {
@@ -20,6 +21,7 @@ public class Recipe implements Serializable {
     private int time;
     private RecipeType recipeType;
     private List<String> instructions;
+    private List<CookingTransaction> cookingTransactions;
 
 
     public Recipe() {
@@ -34,12 +36,11 @@ public class Recipe implements Serializable {
         name = recipeDTO.getName();
         instructions = recipeDTO.getInstructions();
         time = recipeDTO.getTime();
-        recipeArticles = new ArrayList<>();
 
         //map recipe articles
 
-        recipeDTO.getRecipeArticles().stream().forEach(recipeArticleDTO -> recipeArticles.add(new RecipeArticle(recipeArticleDTO)));
-
+        recipeArticles = recipeDTO.getRecipeArticles().stream().map(RecipeArticle::new).collect(Collectors.toList());
+        cookingTransactions = recipeDTO.getCookingTransactions().stream().map(CookingTransaction::new).collect(Collectors.toList());
     }
 
     public Recipe(UUID id, String name, List<RecipeArticle> recipeArticles, String image, String country, String description, RecipeType recipeType,int time) {

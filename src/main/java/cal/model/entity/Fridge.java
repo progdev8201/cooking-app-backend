@@ -3,11 +3,12 @@ package cal.model.entity;
 import cal.model.dto.FridgeDTO;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
-public class Fridge {
+public class Fridge implements Serializable {
 
     private UUID id;
     private List<RoutineArticle> availableArticles;
