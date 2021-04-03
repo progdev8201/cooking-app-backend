@@ -3,6 +3,7 @@ package cal.service;
 import cal.model.dto.RecipeDTO;
 import cal.model.dto.UserDTO;
 import cal.model.entity.Recipe;
+import cal.model.entity.RecipeToCook;
 import cal.model.entity.User;
 import cal.repository.ImageRepository;
 import cal.repository.UserRepository;
@@ -64,13 +65,23 @@ public class RecipeService {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u ->{
+            // update recipe in cooking list
+            Optional<RecipeToCook> recipeToCook = u.getCookingList().stream().filter(recipeToCook1 -> recipeToCook1.getRecipe().getId().equals(recipeDTO.getId())).findFirst();
+
+            // todo get real recipe and map dto values into it
+            recipeToCook.ifPresent(recipeToCook1 -> {
+                recipeToCook1.setRecipe(new Recipe(recipeDTO));
+                LOGGER.info("RECIPE WITH ID: "+ recipeDTO.getId() + " WAS UPDATED IN COOKING LIST WITH SUCCESS");
+            });
+
+            // update recipe in recipe list
             Optional<Recipe> recipeToUpdate = u.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeDTO.getId())).findFirst();
 
             recipeToUpdate.ifPresent(recipe -> {
                 // todo when adding mapping method no need to index of
                 u.getRecipes().set(u.getRecipes().indexOf(recipe),new Recipe(recipeDTO));
                 userRepository.save(u);
-                LOGGER.info("RECIPE UPDATED WITH SUCCESS");
+                LOGGER.info("RECIPE WITH ID: "+ recipeDTO.getId() + " WAS UPDATED WITH SUCCESS");
             });
         });
 
@@ -81,6 +92,15 @@ public class RecipeService {
         Optional<User> user = userRepository.findById(userId);
 
         user.ifPresent(u ->{
+            //todo clean code
+            // delete recipe in cooking list
+            Optional<RecipeToCook> recipeToCook = u.getCookingList()
+                    .stream()
+                    .filter(recipeToCook1 -> recipeToCook1.getRecipe().getId().equals(recipeId))
+                    .findFirst();
+
+            recipeToCook.ifPresent(recipeToCook1 -> u.getCookingList().remove(recipeToCook1));
+
             // delete recipe in user recipe list
             Optional<Recipe> recipeToDelete = u.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeId)).findFirst();
 

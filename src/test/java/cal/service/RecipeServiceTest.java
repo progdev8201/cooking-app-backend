@@ -67,11 +67,14 @@ public class RecipeServiceTest {
     @Test
     public void updateByRemoveArticleTest(){
         //ARRANGE
-        final Recipe recipeToUpdate = user.getRecipes().get(0);
+        final int indexToGet = 0;
+        final Recipe recipeToUpdate = user.getCookingList().get(indexToGet).getRecipe();
 
         final int initialSize = recipeToUpdate.getRecipeArticles().size();
+        final int expectedSize = initialSize - 1;
 
-        recipeToUpdate.getRecipeArticles().remove(0);
+
+        recipeToUpdate.getRecipeArticles().remove(indexToGet);
 
         //ACT
         recipeService.update(user.getUniqueId(),new RecipeDTO(recipeToUpdate));
@@ -79,20 +82,24 @@ public class RecipeServiceTest {
         user = userRepository.findById(user.getUniqueId()).get();
 
         //ASSERT
-        assertEquals(user.getRecipes().get(0).getRecipeArticles().size(),initialSize - 1);
-
+        assertEquals(user.getRecipes().get(indexToGet).getRecipeArticles().size(),expectedSize);
+        assertEquals(user.getCookingList().get(indexToGet).getRecipe().getRecipeArticles().size(),expectedSize);
     }
 
     @Test
     public void deleteTest(){
         //ARRANGE
         final int initialSize = user.getRecipes().size();
+        final int initialRecipeToCookSize = user.getCookingList().size();
+        final int finalExepectedRecipeToCookSize = initialRecipeToCookSize - 1;
 
         //ACT
         recipeService.delete(user.getUniqueId(),user.getRecipes().get(0).getId());
+
         user = userRepository.findById(user.getUniqueId()).get();
 
         //ASSERT
         assertEquals(user.getRecipes().size(),initialSize - 1 );
+        assertEquals(finalExepectedRecipeToCookSize,user.getCookingList().size());
     }
 }
