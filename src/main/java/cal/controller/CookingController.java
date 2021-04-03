@@ -1,5 +1,6 @@
 package cal.controller;
 
+import cal.model.dto.AddRecipeToCookingListRequest;
 import cal.model.dto.RecipeDTO;
 import cal.model.dto.RecipeToCookDTO;
 import cal.service.CookingListService;
@@ -27,9 +28,9 @@ public class CookingController {
         cookingListService.cookRecipe(userId, recipeToCookId);
     }
 
-    @PostMapping("{userId}/{cookDate}")
-    public void addRecipesToList(@PathVariable final UUID userId, @RequestBody final List<RecipeDTO> recipesToCook, @PathVariable final LocalDate cookDate) {
-        cookingListService.addRecipesToList(userId, recipesToCook, cookDate);
+    @PostMapping("{userId}")
+    public void addRecipesToList(@PathVariable final UUID userId, @RequestBody final AddRecipeToCookingListRequest addRecipeToCookingListRequest) {
+        cookingListService.addRecipesToList(userId, addRecipeToCookingListRequest.getRecipesToCook(), addRecipeToCookingListRequest.getCookDate());
     }
 
     @PutMapping("{userId}/{cookDate}/{recipeToCookId}")
@@ -37,7 +38,7 @@ public class CookingController {
         return cookingListService.updateCookDay(userId, cookDate, recipeToCookId);
     }
 
-    @DeleteMapping("{userId}")
+    @PostMapping("delete/{userId}")
     public void deleteRecipes(@PathVariable final UUID userId, @RequestBody final List<UUID> recipesToDelete) {
         cookingListService.deleteRecipes(userId, recipesToDelete);
     }
