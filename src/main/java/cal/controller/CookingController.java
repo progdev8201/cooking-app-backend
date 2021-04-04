@@ -1,7 +1,6 @@
 package cal.controller;
 
-import cal.model.dto.AddRecipeToCookingListRequest;
-import cal.model.dto.RecipeDTO;
+import cal.model.dto.request.AddRecipeToCookingListRequest;
 import cal.model.dto.RecipeToCookDTO;
 import cal.service.CookingListService;
 import org.springframework.beans.factory.annotation.Autowired;

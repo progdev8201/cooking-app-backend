@@ -1,5 +1,6 @@
-package cal.model.dto;
+package cal.model.dto.request;
 
+import cal.model.dto.RecipeDTO;
 import lombok.Data;
 
 import java.time.LocalDate;

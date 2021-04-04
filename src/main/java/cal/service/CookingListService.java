@@ -111,7 +111,7 @@ public class CookingListService {
 
                 u.getCookingList().remove(r);
 
-                LOGGER.info("RECIPE TO COOK WITH ID: " + r.getId() + "WAS DELETED");
+                LOGGER.info("RECIPE TO COOK WITH ID: " + r.getId() + " WAS DELETED");
             }
 
             userRepository.save(u);
