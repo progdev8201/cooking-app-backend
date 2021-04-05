@@ -31,6 +31,7 @@ public class CookingListService {
         return user.isPresent() ? user.get().getCookingList().stream().map(RecipeToCookDTO::new).collect(Collectors.toList()) : null;
     }
 
+    //todo fix this method by putting list of id instead of list of recipe dto
     public void addRecipesToList(UUID userId, List<RecipeDTO> recipes, LocalDate cookDate) {
         Optional<User> user = userRepository.findById(userId);
 

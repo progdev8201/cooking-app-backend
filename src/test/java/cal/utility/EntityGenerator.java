@@ -14,10 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EntityGenerator {
-    public static final int USER_ARTICLE_SIZE = 10;
-    public static final int USER_ROUTINE_SIZE = 10;
-    public static final int USER_RECIPE_SIZE = 10;
-    public static final int USER_M_SIZE = 10;
+    public static final float ARTICLE_BASIC_PRICE = 5.99F;
 
     //setting up a user with all entity based on real logic
     public static User setUpUserWithLogic() {
@@ -77,7 +74,7 @@ public class EntityGenerator {
 
     // todo might have to delete all of those methods if not used
     public static Article generateArticle() {
-        return new Article(UUID.randomUUID(), "test", "test", 5.99f, UUID.randomUUID().toString(), ArticleType.SOLID, ArticleCategorie.CEREAL);
+        return new Article(UUID.randomUUID(), "test", "test", ARTICLE_BASIC_PRICE, UUID.randomUUID().toString(), ArticleType.SOLID, ArticleCategorie.CEREAL);
     }
 
     public static RoutineArticle generateRoutineArticle() {

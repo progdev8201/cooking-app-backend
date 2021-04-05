@@ -1,12 +1,10 @@
 package cal.service;
 
 import cal.model.dto.RecipeDTO;
-import cal.model.entity.CookingTransaction;
 import cal.model.entity.Recipe;
 import cal.model.entity.RecipeToCook;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
-import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,11 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
-import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static cal.utility.EntityGenerator.setUpUserWithLogic;
@@ -55,7 +50,7 @@ public class CookingListServiceTest {
                 .collect(Collectors.toList());
 
         // Assert
-        assertEquals(recipesToCook,user.getCookingList());
+        assertEquals(recipesToCook, user.getCookingList());
 
     }
 
@@ -88,17 +83,17 @@ public class CookingListServiceTest {
         final LocalDate timeToAdd = LocalDate.now().minusDays(6l);
 
         // Act
-        cookingListService.updateCookDay(user.getUniqueId(),timeToAdd,recipeToCookToUpdate.getId());
+        cookingListService.updateCookDay(user.getUniqueId(), timeToAdd, recipeToCookToUpdate.getId());
 
         user = userRepository.findById(user.getUniqueId()).get();
 
         final RecipeToCook recipeToCookUpdated = user.getCookingList().get(indexOfRecipe);
 
         // Assert
-        assertNotEquals(recipeToCookToUpdate.getCookDate(),recipeToCookUpdated.getCookDate());
-        assertEquals(timeToAdd,recipeToCookUpdated.getCookDate());
-        assertEquals(recipeToCookToUpdate.getRecipe(),recipeToCookUpdated.getRecipe());
-        assertEquals(recipeToCookToUpdate.getId(),recipeToCookUpdated.getId());
+        assertNotEquals(recipeToCookToUpdate.getCookDate(), recipeToCookUpdated.getCookDate());
+        assertEquals(timeToAdd, recipeToCookUpdated.getCookDate());
+        assertEquals(recipeToCookToUpdate.getRecipe(), recipeToCookUpdated.getRecipe());
+        assertEquals(recipeToCookToUpdate.getId(), recipeToCookUpdated.getId());
     }
 
     @Test
@@ -111,7 +106,7 @@ public class CookingListServiceTest {
         final RecipeToCook recipeToDelete = user.getCookingList().get(recipeToCookIndex);
 
         // Act
-        cookingListService.deleteRecipes(user.getUniqueId(),Arrays.asList(recipeToDelete.getId()));
+        cookingListService.deleteRecipes(user.getUniqueId(), Arrays.asList(recipeToDelete.getId()));
 
         user = userRepository.findById(user.getUniqueId()).get();
 
@@ -132,7 +127,7 @@ public class CookingListServiceTest {
         final RecipeToCook recipeToDelete = user.getCookingList().get(recipeToCookIndex);
 
         // Act
-        cookingListService.cookRecipe(user.getUniqueId(),recipeToDelete.getId());
+        cookingListService.cookRecipe(user.getUniqueId(), recipeToDelete.getId());
 
         user = userRepository.findById(user.getUniqueId()).get();
 
@@ -144,6 +139,6 @@ public class CookingListServiceTest {
         // Assert
         assertEquals(expectedCookingSize, user.getCookingList().size());
         assertNull(expectedNullRecipe);
-        assertEquals(LocalDate.now(),recipeThatHaveTransaction.getCookingTransactions().get(0).getCookDate());
+        assertEquals(LocalDate.now(), recipeThatHaveTransaction.getCookingTransactions().get(0).getCookDate());
     }
 }

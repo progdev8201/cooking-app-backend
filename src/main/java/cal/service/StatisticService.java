@@ -27,13 +27,13 @@ public class StatisticService {
     private final int AMOUNT_OF_MONTH = 12;
 
 
-    public List<MoneySpendPerMonthResponse> findMoneySpentPerMonth(UUID userId, int year) {
+    public List<MoneySpendPerMonthResponse> findMoneySpentPerMonth(final UUID userId, final int year) {
         // find all articles
-        List<ArticleDTO> articles = articleService.findAll(userId);
-        List<MoneySpendPerMonthResponse> moneySpendPerMonthResponses = new ArrayList<>();
+        final List<ArticleDTO> articles = articleService.findAll(userId);
+        final List<MoneySpendPerMonthResponse> moneySpendPerMonthResponses = new ArrayList<>();
 
         // find all transactions for the year
-        List<TransactionDTO> transactionsForYear = articles
+        final List<TransactionDTO> transactionsForYear = articles
                 .stream()
                 .map(articleDTO ->
                         articleDTO.getTransactions()
@@ -48,7 +48,7 @@ public class StatisticService {
         for (int i = 1; i <= AMOUNT_OF_MONTH; i++) {
             final int month = i;
 
-            double count = transactionsForYear
+            final double count = transactionsForYear
                     .stream()
                     .filter(transactionDTO -> transactionDTO != null)
                     .filter(transactionDTO -> transactionDTO.getBougthDate().getMonth().getValue() == month)
@@ -58,17 +58,17 @@ public class StatisticService {
             moneySpendPerMonthResponses.add(new MoneySpendPerMonthResponse(count, month));
         }
 
-        return null;
+        return moneySpendPerMonthResponses;
     }
 
-    public List<RecipeCookTimePerMonthResponse> findAmountOfTimeARecipeIsCookedPerMonth(UUID userId, UUID recipeId, int year) {
+    public List<RecipeCookTimePerMonthResponse> findAmountOfTimeARecipeIsCookedPerMonth(final UUID userId, final UUID recipeId, final int year) {
         // find recipe
-        RecipeDTO recipe = recipeService.find(userId, recipeId);
+        final RecipeDTO recipe = recipeService.find(userId, recipeId);
 
-        List<RecipeCookTimePerMonthResponse> recipeCookTimePerMonthResponses = new ArrayList<>();
+        final List<RecipeCookTimePerMonthResponse> recipeCookTimePerMonthResponses = new ArrayList<>();
 
         // find all transactions
-        List<CookingTransactionDTO> transactionsForYear = recipe.getCookingTransactions()
+        final List<CookingTransactionDTO> transactionsForYear = recipe.getCookingTransactions()
                 .stream()
                 .filter(cookingTransactionDTO -> cookingTransactionDTO.getCookDate().getYear() == year)
                 .collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class StatisticService {
         for (int i = 1; i <= AMOUNT_OF_MONTH; i++) {
             final int month = i;
 
-            long count = transactionsForYear
+            final long count = transactionsForYear
                     .stream()
                     .filter(transactionDTO -> transactionDTO != null)
                     .filter(transactionDTO -> transactionDTO.getCookDate().getMonth().getValue() == month)
@@ -89,14 +89,14 @@ public class StatisticService {
         return recipeCookTimePerMonthResponses;
     }
 
-    public List<CookingAmountPerMonthResponse> findAmountOfTimeUserCookPerMonth(UUID userId, int year) {
+    public List<CookingAmountPerMonthResponse> findAmountOfTimeUserCookPerMonth(final UUID userId, final int year) {
         // find all recipes
-        List<RecipeDTO> recipes = recipeService.findAll(userId);
+        final List<RecipeDTO> recipes = recipeService.findAll(userId);
 
-        List<CookingAmountPerMonthResponse> cookingAmountPerMonthResponses = new ArrayList<>();
+        final List<CookingAmountPerMonthResponse> cookingAmountPerMonthResponses = new ArrayList<>();
 
         // find all transactions for the year
-        List<List<CookingTransactionDTO>> transactionsForYearMultiple = recipes
+        final List<List<CookingTransactionDTO>> transactionsForYearMultiple = recipes
                 .stream()
                 .map(recipeDTO -> recipeDTO.getCookingTransactions()
                         .stream()
@@ -104,7 +104,7 @@ public class StatisticService {
                         .collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
-        List<CookingTransactionDTO> transactionsForYear = new ArrayList<>();
+        final List<CookingTransactionDTO> transactionsForYear = new ArrayList<>();
 
         transactionsForYearMultiple.forEach(cookingTransactionDTOS -> transactionsForYear.addAll(cookingTransactionDTOS));
 
@@ -112,7 +112,7 @@ public class StatisticService {
         for (int i = 1; i <= AMOUNT_OF_MONTH; i++) {
             final int month = i;
 
-            long count = transactionsForYear
+            final long count = transactionsForYear
                     .stream()
                     .filter(transactionDTO -> transactionDTO.getCookDate().getMonth().getValue() == month)
                     .count();
