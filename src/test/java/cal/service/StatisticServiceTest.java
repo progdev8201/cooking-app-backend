@@ -113,6 +113,7 @@ public class StatisticServiceTest {
         // Arrange
         final int expectedAmountForFirst6Months = TRANSACTION_PER_MONTH_1_TO_6 * AMOUNT_OF_RECIPE_TO_ADD;
         final int expectedAmountForLast6Months = TRANSACTION_PER_MONTH_7_TO_12 * AMOUNT_OF_RECIPE_TO_ADD;
+
         // Act
         List<CookingAmountPerMonthResponse> response = statisticService.findAmountOfTimeUserCookPerMonth(user.getUniqueId(),YEAR);
 
