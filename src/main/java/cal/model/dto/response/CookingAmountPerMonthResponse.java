@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+//todo create inheritance
 @Data
 @AllArgsConstructor
 public class CookingAmountPerMonthResponse {

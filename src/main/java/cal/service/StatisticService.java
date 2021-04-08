@@ -4,8 +4,9 @@ import cal.model.dto.ArticleDTO;
 import cal.model.dto.CookingTransactionDTO;
 import cal.model.dto.RecipeDTO;
 import cal.model.dto.TransactionDTO;
+import cal.model.dto.response.AllStatisticsResponse;
 import cal.model.dto.response.CookingAmountPerMonthResponse;
-import cal.model.dto.response.MoneySpendPerMonthResponse;
+import cal.model.dto.response.MoneySpentPerMonthResponse;
 import cal.model.dto.response.RecipeCookTimePerMonthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,10 @@ public class StatisticService {
 
     private final int AMOUNT_OF_MONTH = 12;
 
-
-    public List<MoneySpendPerMonthResponse> findMoneySpentPerMonth(final UUID userId, final int year) {
+    public List<MoneySpentPerMonthResponse> findMoneySpentPerMonth(final UUID userId, final int year) {
         // find all articles
         final List<ArticleDTO> articles = articleService.findAll(userId);
-        final List<MoneySpendPerMonthResponse> moneySpendPerMonthResponses = new ArrayList<>();
+        final List<MoneySpentPerMonthResponse> moneySpentPerMonthRespons = new ArrayList<>();
 
         // find all transactions for the year
         final List<List<TransactionDTO>> transactionsForYearMultiple = articles
@@ -58,10 +58,10 @@ public class StatisticService {
                     .mapToDouble(transactionDTO -> transactionDTO.getArticlePrice())
                     .sum();
 
-            moneySpendPerMonthResponses.add(new MoneySpendPerMonthResponse(count, month));
+            moneySpentPerMonthRespons.add(new MoneySpentPerMonthResponse(count, month));
         }
 
-        return moneySpendPerMonthResponses;
+        return moneySpentPerMonthRespons;
     }
 
     public List<RecipeCookTimePerMonthResponse> findAmountOfTimeARecipeIsCookedPerMonth(final UUID userId, final UUID recipeId, final int year) {
@@ -124,5 +124,42 @@ public class StatisticService {
         }
 
         return cookingAmountPerMonthResponses;
+    }
+
+    public AllStatisticsResponse findAllStatistics(final UUID userId,final UUID recipeId, final int year){
+        List<MoneySpentPerMonthResponse> moneySpentPerMonthRespons = findMoneySpentPerMonth(userId, year);
+        List<RecipeCookTimePerMonthResponse> recipeCookTimePerMonthResponses = findAmountOfTimeARecipeIsCookedPerMonth(userId, recipeId, year);
+        List<CookingAmountPerMonthResponse> cookingAmountPerMonthResponses = findAmountOfTimeUserCookPerMonth(userId, year);
+
+        double averageMoneySpentPerMonth = findAverageMoneySpentPerMonth(moneySpentPerMonthRespons);
+        double averageTimeCookPerMonth = findAverageTimeCookPerMonth(cookingAmountPerMonthResponses);
+        double moneySpentThisYear = findMoneySpentThisYear(moneySpentPerMonthRespons);
+
+        return new AllStatisticsResponse(averageMoneySpentPerMonth,moneySpentThisYear,averageTimeCookPerMonth,cookingAmountPerMonthResponses, moneySpentPerMonthRespons,recipeCookTimePerMonthResponses);
+    }
+
+    // PRIVATE METHODS
+
+    private double findAverageMoneySpentPerMonth(List<MoneySpentPerMonthResponse> moneySpentPerMonthRespons){
+        return moneySpentPerMonthRespons
+                .stream()
+                .mapToDouble(MoneySpentPerMonthResponse::getAmount)
+                .average()
+                .orElse(Double.NaN);
+    }
+
+    private double findAverageTimeCookPerMonth(List<CookingAmountPerMonthResponse> cookingAmountPerMonthResponses){
+        return cookingAmountPerMonthResponses
+                .stream()
+                .mapToDouble(CookingAmountPerMonthResponse::getAmount)
+                .average()
+                .orElse(Double.NaN);
+    }
+
+    private double findMoneySpentThisYear(List<MoneySpentPerMonthResponse> moneySpentPerMonthRespons){
+        return moneySpentPerMonthRespons
+                .stream()
+                .mapToDouble(MoneySpentPerMonthResponse::getAmount)
+                .sum();
     }
 }

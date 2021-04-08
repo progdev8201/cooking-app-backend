@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MoneySpendPerMonthResponse {
+public class MoneySpentPerMonthResponse {
     private double amount;
     private int month;
 }

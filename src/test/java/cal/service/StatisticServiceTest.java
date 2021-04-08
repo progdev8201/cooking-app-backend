@@ -3,8 +3,9 @@ package cal.service;
 import cal.model.dto.ArticleDTO;
 import cal.model.dto.RecipeDTO;
 import cal.model.dto.RoutineDTO;
+import cal.model.dto.response.AllStatisticsResponse;
 import cal.model.dto.response.CookingAmountPerMonthResponse;
-import cal.model.dto.response.MoneySpendPerMonthResponse;
+import cal.model.dto.response.MoneySpentPerMonthResponse;
 import cal.model.dto.response.RecipeCookTimePerMonthResponse;
 import cal.model.entity.Recipe;
 import cal.model.entity.RecipeToCook;
@@ -23,7 +24,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static cal.utility.EntityGenerator.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DataMongoTest
@@ -72,6 +73,22 @@ public class StatisticServiceTest {
         user = userRepository.findById(user.getUniqueId()).get();
     }
 
+    // in this test we simply need to test the three private methods
+    @Test
+    public void findAllStatisticsTest(){
+        // Arrange
+        final UUID recipeId = user.getRecipes().get(0).getId();
+
+        // Act
+        AllStatisticsResponse allStatisticsResponse = statisticService.findAllStatistics(user.getUniqueId(),recipeId,YEAR);
+
+        //todo how can i test this? because im only using stream methods and getting data from already tested methods
+        // Assert
+        assertTrue(allStatisticsResponse.getAverageMoneySpentPerMonth() > 0);
+        assertTrue(allStatisticsResponse.getAverageTimeCookPerMonth() > 0);
+        assertTrue(allStatisticsResponse.getMoneySpentThisYear() > 0);
+    }
+
     @Test
     public void findMoneySpentPerMonthTest() {
         // Arrange
@@ -84,11 +101,11 @@ public class StatisticServiceTest {
         final float expectedMoneySpentForYear = ARTICLE_BASIC_PRICE * totalAmountOfBoughtArticles;
 
         // Act
-        final List<MoneySpendPerMonthResponse> response = statisticService.findMoneySpentPerMonth(user.getUniqueId(), YEAR);
+        final List<MoneySpentPerMonthResponse> response = statisticService.findMoneySpentPerMonth(user.getUniqueId(), YEAR);
 
         final double totalMoneySpentInYear = response
                 .stream()
-                .mapToDouble(MoneySpendPerMonthResponse::getAmount)
+                .mapToDouble(MoneySpentPerMonthResponse::getAmount)
                 .sum();
 
         // Assert

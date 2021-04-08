@@ -1,7 +1,8 @@
 package cal.controller;
 
+import cal.model.dto.response.AllStatisticsResponse;
 import cal.model.dto.response.CookingAmountPerMonthResponse;
-import cal.model.dto.response.MoneySpendPerMonthResponse;
+import cal.model.dto.response.MoneySpentPerMonthResponse;
 import cal.model.dto.response.RecipeCookTimePerMonthResponse;
 import cal.service.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class StatisticController {
     private StatisticService statisticService;
 
     @GetMapping("moneySpentPerMonth/{userId}/{year}")
-    public List<MoneySpendPerMonthResponse> findMoneySpentPerMonth(@PathVariable final UUID userId, @PathVariable final int year) {
+    public List<MoneySpentPerMonthResponse> findMoneySpentPerMonth(@PathVariable final UUID userId, @PathVariable final int year) {
         return statisticService.findMoneySpentPerMonth(userId,year);
     }
 
@@ -33,5 +34,10 @@ public class StatisticController {
     @GetMapping("timeUserCookPerMonth/{userId}/{year}")
     public List<CookingAmountPerMonthResponse> findAmountOfTimeUserCookPerMonth(@PathVariable final UUID userId, @PathVariable final int year) {
         return statisticService.findAmountOfTimeUserCookPerMonth(userId,year);
+    }
+
+    @GetMapping("allStats/{userId}/{year}/{recipeId}")
+    public AllStatisticsResponse findAllStatistics(@PathVariable final UUID userId,@PathVariable final UUID recipeId,@PathVariable final int year){
+        return statisticService.findAllStatistics(userId, recipeId, year);
     }
 }
