@@ -15,13 +15,14 @@ import java.util.stream.Collectors;
 
 public class EntityGenerator {
     public static final float ARTICLE_BASIC_PRICE = 5.99F;
+    public static final int ARTICLE_AMOUNT = 20;
 
     //setting up a user with all entity based on real logic
     public static User setUpUserWithLogic() {
         User user = new User(UUID.randomUUID(), "test", "test", "test", "test", "test");
 
         // create 20 articles
-        user.setArticles(generateArticles(20));
+        user.setArticles(generateArticles(ARTICLE_AMOUNT));
 
         // fill up 2 routine
         List<RoutineArticle> routineArticlesPart1 = user.getArticles().subList(0, user.getArticles().size() / 2)

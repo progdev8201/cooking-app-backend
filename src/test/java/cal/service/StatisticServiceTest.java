@@ -1,14 +1,16 @@
 package cal.service;
 
+import cal.model.dto.ArticleDTO;
 import cal.model.dto.RecipeDTO;
+import cal.model.dto.RoutineDTO;
 import cal.model.dto.response.CookingAmountPerMonthResponse;
+import cal.model.dto.response.MoneySpendPerMonthResponse;
 import cal.model.dto.response.RecipeCookTimePerMonthResponse;
 import cal.model.entity.Recipe;
 import cal.model.entity.RecipeToCook;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -20,9 +22,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static cal.utility.EntityGenerator.setUpUserWithLogic;
+import static cal.utility.EntityGenerator.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
 @Import({StatisticService.class, CookingListService.class, ShoppingListService.class, RecipeService.class, ArticleService.class, ImageService.class})
@@ -41,54 +44,62 @@ public class StatisticServiceTest {
     private ShoppingListService shoppingListService;
 
     @Autowired
+    private ArticleService articleService;
+
+    @Autowired
     private UserRepository userRepository;
 
     private User user;
 
-    private final int TRANSACTION_PER_MONTH_1_TO_6 = 2;
-    private final int TRANSACTION_PER_MONTH_7_TO_12 = 3;
+    private final int COOKING_TRANSACTION_PER_MONTH_1_TO_6 = 2;
+    private final int COOKING_TRANSACTION_PER_MONTH_7_TO_12 = 3;
+    private final int ARTICLE_TRANSACTION_PER_MONTH_1_TO_6 = 2;
+    private final int ARTICLE_TRANSACTION_PER_MONTH_7_TO_12 = 3;
     private final int AMOUNT_OF_RECIPE_TO_ADD = 2;
     private final int AMOUNT_OF_MONTHS = 12;
     private final int YEAR = 2021;
+    private final int ROUTINE_INDEX = 0;
 
-    @BeforeEach
-    public void beforeEach() {
+    @BeforeAll
+    public void beforeAll() {
         // create user
         user = userRepository.save(setUpUserWithLogic());
 
-        // add two recipes with different dates to cooking list with service
-        List<Recipe> twoRecipes = user.getRecipes().subList(0, AMOUNT_OF_RECIPE_TO_ADD);
+        setUpCookingTransactionsOnRecipesWithLogic();
 
-        for (int i = 1; i <= AMOUNT_OF_MONTHS; i++) {
-            if (i < 7)
-                createRecipeTransactionsOverMonth(twoRecipes, TRANSACTION_PER_MONTH_1_TO_6);
+        setUpArticleTransactionsOnArticlesWithLogic();
+
+        user = userRepository.findById(user.getUniqueId()).get();
+    }
+
+    @Test
+    public void findMoneySpentPerMonthTest() {
+        // Arrange
+        final int articleAmountInRoutines = ARTICLE_AMOUNT / 2;
+        final int amountOfBoughtArticleFirstHalf = ARTICLE_TRANSACTION_PER_MONTH_1_TO_6 * (AMOUNT_OF_MONTHS / 2) * articleAmountInRoutines;
+        final int amountOfBoughtArticleSecondHalf = ARTICLE_TRANSACTION_PER_MONTH_7_TO_12 * (AMOUNT_OF_MONTHS / 2) * articleAmountInRoutines;
+        final int totalAmountOfBoughtArticles = amountOfBoughtArticleFirstHalf + amountOfBoughtArticleSecondHalf;
+        final float expectedPricePerMonthFirstHalf = ARTICLE_TRANSACTION_PER_MONTH_1_TO_6 * ARTICLE_BASIC_PRICE * articleAmountInRoutines;
+        final float expectedPricePerMonthSecondHalf = ARTICLE_TRANSACTION_PER_MONTH_7_TO_12 * ARTICLE_BASIC_PRICE * articleAmountInRoutines;
+        final float expectedMoneySpentForYear = ARTICLE_BASIC_PRICE * totalAmountOfBoughtArticles;
+
+        // Act
+        final List<MoneySpendPerMonthResponse> response = statisticService.findMoneySpentPerMonth(user.getUniqueId(), YEAR);
+
+        final double totalMoneySpentInYear = response
+                .stream()
+                .mapToDouble(MoneySpendPerMonthResponse::getAmount)
+                .sum();
+
+        // Assert
+        for (int i = 0; i < response.size(); i++) {
+            if (i < 6)
+                assertEquals(Math.round(expectedPricePerMonthFirstHalf), Math.round(response.get(i).getAmount()));
             else
-                createRecipeTransactionsOverMonth(twoRecipes, TRANSACTION_PER_MONTH_7_TO_12);
+                assertEquals(Math.round(expectedPricePerMonthSecondHalf), Math.round(response.get(i).getAmount()));
         }
 
-        for (int i = 1; i <= AMOUNT_OF_MONTHS; i++) {
-            final int month = i;
-
-            if (i < 7) {
-
-                final int jFirst6MonthsFormula = TRANSACTION_PER_MONTH_1_TO_6 * month - TRANSACTION_PER_MONTH_1_TO_6;
-                final int jFirst6MonthsLimitFormula = TRANSACTION_PER_MONTH_1_TO_6 * month;
-
-                addMonthsToTransaction(twoRecipes, month, jFirst6MonthsFormula, jFirst6MonthsLimitFormula);
-            } else {
-
-                final int jLast6MonthsFormula = TRANSACTION_PER_MONTH_7_TO_12 * month - 3 * TRANSACTION_PER_MONTH_7_TO_12;
-                final int jLast6MonthsLimitFormula = TRANSACTION_PER_MONTH_7_TO_12 * month - 3 * TRANSACTION_PER_MONTH_7_TO_12 + TRANSACTION_PER_MONTH_7_TO_12;
-
-                addMonthsToTransaction(twoRecipes, month, jLast6MonthsFormula, jLast6MonthsLimitFormula);
-            }
-        }
-
-        // you should get the user back from db after this
-
-        // cook them it should create 3 transactions
-        System.out.println(user);
-
+        assertEquals(Math.round(expectedMoneySpentForYear), Math.round(totalMoneySpentInYear));
     }
 
     @Test
@@ -102,20 +113,20 @@ public class StatisticServiceTest {
         // Assert
         for (int i = 0; i < response.size(); i++) {
             if (i < 6)
-                assertEquals(TRANSACTION_PER_MONTH_1_TO_6, response.get(i).getAmount());
+                assertEquals(COOKING_TRANSACTION_PER_MONTH_1_TO_6, response.get(i).getAmount());
             else
-                assertEquals(TRANSACTION_PER_MONTH_7_TO_12, response.get(i).getAmount());
+                assertEquals(COOKING_TRANSACTION_PER_MONTH_7_TO_12, response.get(i).getAmount());
         }
     }
 
     @Test
-    public void findAmountOfTimeUserCookPerMonthTest(){
+    public void findAmountOfTimeUserCookPerMonthTest() {
         // Arrange
-        final int expectedAmountForFirst6Months = TRANSACTION_PER_MONTH_1_TO_6 * AMOUNT_OF_RECIPE_TO_ADD;
-        final int expectedAmountForLast6Months = TRANSACTION_PER_MONTH_7_TO_12 * AMOUNT_OF_RECIPE_TO_ADD;
+        final int expectedAmountForFirst6Months = COOKING_TRANSACTION_PER_MONTH_1_TO_6 * AMOUNT_OF_RECIPE_TO_ADD;
+        final int expectedAmountForLast6Months = COOKING_TRANSACTION_PER_MONTH_7_TO_12 * AMOUNT_OF_RECIPE_TO_ADD;
 
         // Act
-        List<CookingAmountPerMonthResponse> response = statisticService.findAmountOfTimeUserCookPerMonth(user.getUniqueId(),YEAR);
+        List<CookingAmountPerMonthResponse> response = statisticService.findAmountOfTimeUserCookPerMonth(user.getUniqueId(), YEAR);
 
         // Assert
         for (int i = 0; i < response.size(); i++) {
@@ -126,7 +137,98 @@ public class StatisticServiceTest {
         }
     }
 
-    private void addMonthsToTransaction(List<Recipe> twoRecipes, int month, int firstIndex, int lastIndex) {
+
+    // PRIVATE METHODS
+
+    // articles private methods
+
+    private void setUpArticleTransactionsOnArticlesWithLogic() {
+        RoutineDTO routineDTO = new RoutineDTO(user.getRoutines().get(ROUTINE_INDEX));
+
+        for (int month = 1; month <= AMOUNT_OF_MONTHS; month++) {
+            if (month < 7) {
+
+                createArticleTransactionsOverMonths(routineDTO, ARTICLE_TRANSACTION_PER_MONTH_1_TO_6);
+
+                final int jFirst6MonthsFormula = ARTICLE_TRANSACTION_PER_MONTH_1_TO_6 * month - ARTICLE_TRANSACTION_PER_MONTH_1_TO_6;
+                final int jFirst6MonthsLimitFormula = ARTICLE_TRANSACTION_PER_MONTH_1_TO_6 * month;
+
+                spreadMonthsLogicallyOnArticlesTransactions(routineDTO, jFirst6MonthsFormula, jFirst6MonthsLimitFormula, month);
+            } else {
+                createArticleTransactionsOverMonths(routineDTO, ARTICLE_TRANSACTION_PER_MONTH_7_TO_12);
+
+                final int jLast6MonthsFormula = ARTICLE_TRANSACTION_PER_MONTH_7_TO_12 * month - 3 * ARTICLE_TRANSACTION_PER_MONTH_7_TO_12;
+                final int jLast6MonthsLimitFormula = ARTICLE_TRANSACTION_PER_MONTH_7_TO_12 * month - 3 * ARTICLE_TRANSACTION_PER_MONTH_7_TO_12 + ARTICLE_TRANSACTION_PER_MONTH_7_TO_12;
+
+                spreadMonthsLogicallyOnArticlesTransactions(routineDTO, jLast6MonthsFormula, jLast6MonthsLimitFormula, month);
+            }
+        }
+    }
+
+    private void spreadMonthsLogicallyOnArticlesTransactions(RoutineDTO routineDTO, int jFirst6MonthsFormula, int jFirst6MonthsLimitFormula, int monthI) {
+        user = userRepository.findById(user.getUniqueId()).get();
+
+        user.getArticles()
+                .stream()
+                .filter(article -> routineDTO.getRoutineArticles().stream().anyMatch(routineArticleDTO -> routineArticleDTO.getArticle().getId().equals(article.getId())))
+                .forEach(article -> {
+                    for (int j = jFirst6MonthsFormula; j < jFirst6MonthsLimitFormula; j++) {
+                        article.getTransactions().get(j).setBougthDate(LocalDate.of(YEAR, monthI, 1));
+
+                        articleService.update(new ArticleDTO(article), user.getUniqueId());
+                    }
+                });
+    }
+
+    private void createArticleTransactionsOverMonths(RoutineDTO routineDTO, int articleTransactPerMonth) {
+        // update routine and put the right amount of transactions
+        routineDTO.setRoutineArticles(
+                routineDTO.getRoutineArticles()
+                        .stream()
+                        .map(routineArticleDTO -> {
+                            routineArticleDTO.setQuantity(articleTransactPerMonth);
+                            return routineArticleDTO;
+                        })
+                        .collect(Collectors.toList())
+        );
+
+        shoppingListService.addArticlesInShoppingList(user.getUniqueId(), routineDTO.getRoutineArticles());
+
+        shoppingListService.shop(user.getUniqueId(), routineDTO.getRoutineArticles());
+    }
+
+    // recipes private methods
+
+    private void setUpCookingTransactionsOnRecipesWithLogic() {
+        List<Recipe> twoRecipes = user.getRecipes().subList(0, AMOUNT_OF_RECIPE_TO_ADD);
+
+        for (int i = 1; i <= AMOUNT_OF_MONTHS; i++) {
+            if (i < 7)
+                createRecipeTransactionsOverMonth(twoRecipes, COOKING_TRANSACTION_PER_MONTH_1_TO_6);
+            else
+                createRecipeTransactionsOverMonth(twoRecipes, COOKING_TRANSACTION_PER_MONTH_7_TO_12);
+        }
+
+        for (int i = 1; i <= AMOUNT_OF_MONTHS; i++) {
+            final int month = i;
+
+            if (i < 7) {
+
+                final int jFirst6MonthsFormula = COOKING_TRANSACTION_PER_MONTH_1_TO_6 * month - COOKING_TRANSACTION_PER_MONTH_1_TO_6;
+                final int jFirst6MonthsLimitFormula = COOKING_TRANSACTION_PER_MONTH_1_TO_6 * month;
+
+                addMonthsToCookingTransactions(twoRecipes, month, jFirst6MonthsFormula, jFirst6MonthsLimitFormula);
+            } else {
+
+                final int jLast6MonthsFormula = COOKING_TRANSACTION_PER_MONTH_7_TO_12 * month - 3 * COOKING_TRANSACTION_PER_MONTH_7_TO_12;
+                final int jLast6MonthsLimitFormula = COOKING_TRANSACTION_PER_MONTH_7_TO_12 * month - 3 * COOKING_TRANSACTION_PER_MONTH_7_TO_12 + COOKING_TRANSACTION_PER_MONTH_7_TO_12;
+
+                addMonthsToCookingTransactions(twoRecipes, month, jLast6MonthsFormula, jLast6MonthsLimitFormula);
+            }
+        }
+    }
+
+    private void addMonthsToCookingTransactions(List<Recipe> twoRecipes, int month, int firstIndex, int lastIndex) {
         // prendre chaque recette + prendre les transaction de tel index a tel index et mettre le bon mois dedans
         user.getRecipes()
                 .stream()

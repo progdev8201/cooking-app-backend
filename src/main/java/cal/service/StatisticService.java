@@ -33,16 +33,19 @@ public class StatisticService {
         final List<MoneySpendPerMonthResponse> moneySpendPerMonthResponses = new ArrayList<>();
 
         // find all transactions for the year
-        final List<TransactionDTO> transactionsForYear = articles
+        final List<List<TransactionDTO>> transactionsForYearMultiple = articles
                 .stream()
                 .map(articleDTO ->
                         articleDTO.getTransactions()
                                 .stream()
                                 .filter(transactionDTO -> transactionDTO.getBougthDate().getYear() == year)
-                                .findFirst()
-                                .orElse(null)
+                                .collect(Collectors.toList())
                 )
                 .collect(Collectors.toList());
+
+        final List<TransactionDTO> transactionsForYear = new ArrayList<>();
+
+        transactionsForYearMultiple.forEach(transactionsForYear::addAll);
 
         // divide transaction count per month
         for (int i = 1; i <= AMOUNT_OF_MONTH; i++) {

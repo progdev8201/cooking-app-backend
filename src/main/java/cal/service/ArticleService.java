@@ -80,6 +80,7 @@ public class ArticleService {
             userRepository.save(u);
         });
 
+        // todo you dont have to get back in the db
         return find(userId, articleDTO.getId());
     }
 

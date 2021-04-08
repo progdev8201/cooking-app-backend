@@ -85,6 +85,7 @@ public class RecipeService {
             });
         });
 
+        // todo pas besoin de refetch dans la bd pour return cela
         return findAll(userId);
     }
 
@@ -93,6 +94,7 @@ public class RecipeService {
 
         user.ifPresent(u ->{
             //todo clean code
+
             // delete recipe in cooking list
             Optional<RecipeToCook> recipeToCook = u.getCookingList()
                     .stream()
@@ -101,7 +103,7 @@ public class RecipeService {
 
             recipeToCook.ifPresent(recipeToCook1 -> u.getCookingList().remove(recipeToCook1));
 
-            // delete recipe in user recipe list
+            // delete recipe in user recipe list + delete image
             Optional<Recipe> recipeToDelete = u.getRecipes().stream().filter(recipe -> recipe.getId().equals(recipeId)).findFirst();
 
             recipeToDelete.ifPresent(recipe -> {
@@ -117,6 +119,7 @@ public class RecipeService {
             });
         });
 
+        // todo pas besoin de refetch dans la bd pour return cela
         return findAll(userId);
     }
 
