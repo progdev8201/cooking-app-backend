@@ -77,10 +77,9 @@ public class StatisticServiceTest {
     @Test
     public void findAllStatisticsTest(){
         // Arrange
-        final UUID recipeId = user.getRecipes().get(0).getId();
 
         // Act
-        AllStatisticsResponse allStatisticsResponse = statisticService.findAllStatistics(user.getUniqueId(),recipeId,YEAR);
+        AllStatisticsResponse allStatisticsResponse = statisticService.findAllStatistics(user.getUniqueId(),YEAR);
 
         //todo how can i test this? because im only using stream methods and getting data from already tested methods
         // Assert

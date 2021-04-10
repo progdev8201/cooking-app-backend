@@ -13,5 +13,4 @@ public class AllStatisticsResponse {
     private double averageTimeCookPerMonth;
     private List<CookingAmountPerMonthResponse> cookingAmountPerMonthResponses;
     private List<MoneySpentPerMonthResponse> moneySpentPerMonthResponses;
-    private List<RecipeCookTimePerMonthResponse> recipeCookTimePerMonthResponses;
 }

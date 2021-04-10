@@ -126,16 +126,15 @@ public class StatisticService {
         return cookingAmountPerMonthResponses;
     }
 
-    public AllStatisticsResponse findAllStatistics(final UUID userId,final UUID recipeId, final int year){
+    public AllStatisticsResponse findAllStatistics(final UUID userId, final int year){
         List<MoneySpentPerMonthResponse> moneySpentPerMonthRespons = findMoneySpentPerMonth(userId, year);
-        List<RecipeCookTimePerMonthResponse> recipeCookTimePerMonthResponses = findAmountOfTimeARecipeIsCookedPerMonth(userId, recipeId, year);
         List<CookingAmountPerMonthResponse> cookingAmountPerMonthResponses = findAmountOfTimeUserCookPerMonth(userId, year);
 
         double averageMoneySpentPerMonth = findAverageMoneySpentPerMonth(moneySpentPerMonthRespons);
         double averageTimeCookPerMonth = findAverageTimeCookPerMonth(cookingAmountPerMonthResponses);
         double moneySpentThisYear = findMoneySpentThisYear(moneySpentPerMonthRespons);
 
-        return new AllStatisticsResponse(averageMoneySpentPerMonth,moneySpentThisYear,averageTimeCookPerMonth,cookingAmountPerMonthResponses, moneySpentPerMonthRespons,recipeCookTimePerMonthResponses);
+        return new AllStatisticsResponse(averageMoneySpentPerMonth,moneySpentThisYear,averageTimeCookPerMonth,cookingAmountPerMonthResponses, moneySpentPerMonthRespons);
     }
 
     // PRIVATE METHODS

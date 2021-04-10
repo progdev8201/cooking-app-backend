@@ -1,6 +1,7 @@
 package cal.controller;
 
 import cal.model.dto.RecipeDTO;
+import cal.model.dto.response.RecipeStringResponse;
 import cal.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,11 @@ public class RecipeController {
     @GetMapping("/{userId}")
     public List<RecipeDTO> findAll(@PathVariable final UUID userId){
         return  recipeService.findAll(userId);
+    }
+
+    @GetMapping("findAllStrings/{userId}")
+    public List<RecipeStringResponse> findAllRecipeStrings(@PathVariable final UUID userId){
+        return  recipeService.findAllRecipeStrings(userId);
     }
 
     @PutMapping("/{userId}")

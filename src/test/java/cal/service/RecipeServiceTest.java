@@ -1,6 +1,7 @@
 package cal.service;
 
 import cal.model.dto.RecipeDTO;
+import cal.model.dto.response.RecipeStringResponse;
 import cal.model.entity.Recipe;
 import cal.model.entity.User;
 import cal.repository.UserRepository;
@@ -12,10 +13,12 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.UUID;
 
 import static cal.utility.EntityGenerator.setUpUserWithLogic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
@@ -84,6 +87,21 @@ public class RecipeServiceTest {
         //ASSERT
         assertEquals(user.getRecipes().get(indexToGet).getRecipeArticles().size(),expectedSize);
         assertEquals(user.getCookingList().get(indexToGet).getRecipe().getRecipeArticles().size(),expectedSize);
+    }
+
+    @Test
+    public void findAllRecipeStrings(){
+        // Assert
+
+        // Act
+        List<RecipeStringResponse> recipeStringResponses = recipeService.findAllRecipeStrings(user.getUniqueId());
+        List<Recipe> recipes = user.getRecipes();
+
+        // Arrange
+        recipeStringResponses.forEach(recipeStringResponse -> {
+            assertTrue(recipes.stream().anyMatch(recipe -> recipe.getId().equals(recipeStringResponse.getRecipeId())));
+            assertTrue(recipes.stream().anyMatch(recipe -> recipe.getName().equals(recipeStringResponse.getRecipeName())));
+        });
     }
 
     @Test

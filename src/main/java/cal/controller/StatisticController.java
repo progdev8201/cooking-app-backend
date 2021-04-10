@@ -36,8 +36,8 @@ public class StatisticController {
         return statisticService.findAmountOfTimeUserCookPerMonth(userId,year);
     }
 
-    @GetMapping("allStats/{userId}/{year}/{recipeId}")
-    public AllStatisticsResponse findAllStatistics(@PathVariable final UUID userId,@PathVariable final UUID recipeId,@PathVariable final int year){
-        return statisticService.findAllStatistics(userId, recipeId, year);
+    @GetMapping("allStats/{userId}/{year}")
+    public AllStatisticsResponse findAllStatistics(@PathVariable final UUID userId,@PathVariable final int year){
+        return statisticService.findAllStatistics(userId, year);
     }
 }

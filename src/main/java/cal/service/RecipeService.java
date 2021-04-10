@@ -2,76 +2,82 @@ package cal.service;
 
 import cal.model.dto.RecipeDTO;
 import cal.model.dto.UserDTO;
+import cal.model.dto.response.RecipeStringResponse;
 import cal.model.entity.Recipe;
 import cal.model.entity.RecipeToCook;
 import cal.model.entity.User;
-import cal.repository.ImageRepository;
 import cal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
 public class RecipeService {
 
     @Autowired
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Lazy
     @Autowired
-    private  ImageService imageService;
+    private ImageService imageService;
 
     private final Logger LOGGER = Logger.getLogger(RecipeService.class.getName());
 
     // SERVICES
 
-    public RecipeDTO create(@Valid RecipeDTO recipeDTO,@NotNull UUID userId){
+    public RecipeDTO create(@Valid RecipeDTO recipeDTO, @NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
         Recipe recipe = new Recipe(recipeDTO);
 
-        if (user.isPresent()){
+        if (user.isPresent()) {
             user.get().getRecipes().add(recipe);
             userRepository.save(user.get());
             LOGGER.info("RECIPE CREATED WITH SUCCESS");
         }
 
-        return find(userId,recipe.getId());
+        return find(userId, recipe.getId());
     }
 
-    public RecipeDTO find(@NotNull UUID userId,@NotNull UUID recipeId){
+    public RecipeDTO find(@NotNull UUID userId, @NotNull UUID recipeId) {
         Optional<User> user = userRepository.findById(userId);
 
         return user.isPresent() ? new UserDTO(user.get()).getRecipes().stream().filter(recipeDTO -> recipeDTO.getId().equals(recipeId)).findFirst().get() : null;
     }
 
-    public List<RecipeDTO> findAll(@NotNull UUID userId){
+    public List<RecipeStringResponse> findAllRecipeStrings(@NotNull UUID userId) {
+        return findAll(userId)
+                .stream()
+                .map(RecipeStringResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<RecipeDTO> findAll(@NotNull UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 
         return user.isPresent() ? new UserDTO(user.get()).getRecipes() : null;
     }
 
-    public List<RecipeDTO> update(@NotNull UUID userId,@Valid RecipeDTO recipeDTO){
+    public List<RecipeDTO> update(@NotNull UUID userId, @Valid RecipeDTO recipeDTO) {
         Optional<User> user = userRepository.findById(userId);
 
-        user.ifPresent(u ->{
+        user.ifPresent(u -> {
             // update recipe in cooking list
             Optional<RecipeToCook> recipeToCook = u.getCookingList().stream().filter(recipeToCook1 -> recipeToCook1.getRecipe().getId().equals(recipeDTO.getId())).findFirst();
 
             // todo get real recipe and map dto values into it
             recipeToCook.ifPresent(recipeToCook1 -> {
                 recipeToCook1.setRecipe(new Recipe(recipeDTO));
-                LOGGER.info("RECIPE WITH ID: "+ recipeDTO.getId() + " WAS UPDATED IN COOKING LIST WITH SUCCESS");
+                LOGGER.info("RECIPE WITH ID: " + recipeDTO.getId() + " WAS UPDATED IN COOKING LIST WITH SUCCESS");
             });
 
             // update recipe in recipe list
@@ -79,9 +85,9 @@ public class RecipeService {
 
             recipeToUpdate.ifPresent(recipe -> {
                 // todo when adding mapping method no need to index of
-                u.getRecipes().set(u.getRecipes().indexOf(recipe),new Recipe(recipeDTO));
+                u.getRecipes().set(u.getRecipes().indexOf(recipe), new Recipe(recipeDTO));
                 userRepository.save(u);
-                LOGGER.info("RECIPE WITH ID: "+ recipeDTO.getId() + " WAS UPDATED WITH SUCCESS");
+                LOGGER.info("RECIPE WITH ID: " + recipeDTO.getId() + " WAS UPDATED WITH SUCCESS");
             });
         });
 
@@ -89,10 +95,10 @@ public class RecipeService {
         return findAll(userId);
     }
 
-    public List<RecipeDTO> delete(@NotNull UUID userId,@NotNull UUID recipeId){
+    public List<RecipeDTO> delete(@NotNull UUID userId, @NotNull UUID recipeId) {
         Optional<User> user = userRepository.findById(userId);
 
-        user.ifPresent(u ->{
+        user.ifPresent(u -> {
             //todo clean code
 
             // delete recipe in cooking list
