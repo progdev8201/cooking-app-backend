@@ -9,6 +9,7 @@ Application created to manage cooking at home and doing grocery shopping
   Flapdoodle,
   aws ec2,
   docker,
+  jenkins,
   lombok
  
 # Frontend Technologies:
