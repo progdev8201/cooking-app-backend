@@ -2,7 +2,7 @@
 
 Application created to manage cooking at home and doing grocery shopping
 
-Backend Technologies:
+# Backend Technologies:
   Spring boot,
   Spring security,
   Mongo db,
@@ -11,7 +11,7 @@ Backend Technologies:
   docker,
   lombok
  
-Frontend Technologies:
+# Frontend Technologies:
   Angular,
   Ng2-charts,
   Chart-Js,
@@ -21,7 +21,7 @@ Frontend Technologies:
   
   
 
-Services:
+# Services:
   - article service:
     allow user to list articles,
     allow user to create articles,
