@@ -1,13 +1,6 @@
 package cal.service;
 
-import cal.model.entity.Article;
-import cal.model.entity.Recipe;
-import cal.model.entity.RecipeArticle;
 import cal.model.entity.User;
-import cal.model.enums.ArticleCategorie;
-import cal.model.enums.ArticleType;
-import cal.model.enums.RecipeType;
-import cal.model.enums.UnitMeasurement;
 import cal.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +15,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static cal.utility.EntityGenerator.setUpUserWithLogic;
@@ -32,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
-@Import({ImageService.class,RecipeService.class,ArticleService.class})
+@Import({ImageService.class, RecipeService.class, ArticleService.class})
 public class ImageServiceTest {
 
     @Autowired
@@ -44,7 +35,7 @@ public class ImageServiceTest {
     private User user;
 
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() {
         user = userRepository.save(setUpUserWithLogic());
     }
 
@@ -83,7 +74,7 @@ public class ImageServiceTest {
     @Test
     public void uploadAndDownloadImage_withRecipe_withBadUUIDFormat() throws IOException {
         //ARRANGE
-        user.getRecipes().get(0).setImage("unvalid uuid");
+        user.getRecipes().get(0).setImage("invalid uuid");
 
         user = userRepository.save(user);
 
